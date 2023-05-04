@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+	<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'css/login.css' %}" rel="stylesheet" type="text/css">
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+	<title></title>
+</head>
+<body  class="text-center">
+  <main class="form-signin w-100 m-auto">
+  <form>
+    <img class="mb-4" src="{% static 'images/cliente-4LifeLogo.png' %}" alt="Logo Cliente" >
+    <h1 class="h3 mb-3 fw-normal">SCMSostenible</h1>
+    <div class="form-floating">
+      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+      <label for="floatingInput">Correo Electronico</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <label for="floatingPassword">Contraseña</label>
+    </div>
+
+    <div class="checkbox mb-3">
+      <label>
+        <input type="checkbox" value="remember-me"> Recordarme
+      </label>
+    </div>
+    <button class="w-100 btn btn-lg btn-primary" type="submit">Ingresar</button>
+    <p class="mt-5 mb-3 text-body-secondary">© 2023</p>
+  </form>
+</main>
+      
+</body>
+</html>
