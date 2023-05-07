@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+
 <html>
 <head>
 	<meta charset="utf-8">
@@ -14,23 +15,28 @@
 </head>
 <body  class="text-center">
   <main class="form-signin w-100 m-auto">
-  <form>
+  <form method="POST" action="{% url 'basic_app:user_login' %}" >
     <img class="mb-4" src="{% static 'images/cliente-4LifeLogo.png' %}" alt="Logo Cliente" >
     <h1 class="h3 mb-3 fw-normal">SCMSostenible</h1>
-    <div class="form-floating">
-      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
-      <label for="floatingInput">Correo Electronico</label>
+
+    {% if alerta %}
+    <div class="alert alert-warning" role="alert">
+      {{alerta}}
     </div>
+    {% endif %}
+
+    {% csrf_token %}
     <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
-      <label for="floatingPassword">Contraseña</label>
+      <input type="text" class="form-control" name="username" placeholder="Enter Username">
+      <label for="username">Usuario</label>
     </div>
 
-    <div class="checkbox mb-3">
-      <label>
-        <input type="checkbox" value="remember-me"> Recordarme
-      </label>
+    <div class="form-floating">
+      <input type="password" class="form-control" name="password" placeholder="Password">
+      <label for="password">Password</label>
     </div>
+
+
     <button class="w-100 btn btn-lg btn-primary" type="submit">Ingresar</button>
     <p class="mt-5 mb-3 text-body-secondary">© 2023</p>
   </form>
