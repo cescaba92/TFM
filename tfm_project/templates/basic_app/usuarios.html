@@ -1,0 +1,51 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+
+
+{% block body_block %}
+<div class="">
+
+<div class="p-5 text-left">
+    <div class="container py-5">
+      <h1 class="text-body-emphasis">Gestión de Usuarios</h1>
+     <p class="col-lg-12  lead">
+        Listado de Usuarios para la administración.
+      </p>
+
+  	<a type="button" class="btn btn-success" href="{% url 'basic_app:register' %}">Crear Usuario</a>
+
+      <table class="table">
+      	  <thead>
+            <tr>
+                <th scope="col">Usuario</th>
+                <th scope="col">Correo</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+             {% for userx in users %}
+            <tr>
+                <td>{{ userx.user.username }}</td>
+                <td>{{ userx.user.email }}</td>
+                <td>{{ userx.user.first_name }} {{ userx.user.last_name }}</td>
+                <td>{{ userx.user_rol.nom_rol }}</td>
+                <td>
+                	<a type="button" class="btn btn-warning" href="/basic_app/user_update/{{ userx.id }}">Actualizar</a>
+                    <a type="button" class="btn btn-warning" href="/basic_app/user_password/{{ userx.user.id }}">Cambiar Clave</a>
+                    {% if userx.user.is_active %}
+                    <a type="button" class="btn btn-danger" href="/basic_app/user_desactivar/{{ userx.user.id }}">Desactivar</a>
+                    {% else %}
+                    <a type="button" class="btn btn-success" href="/basic_app/user_activar/{{ userx.user.id}}">Activar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+	  </table>
+
+     </div>
+ </div>
+
+{% endblock %}

@@ -1,3 +1,5 @@
+
+
 body {
   min-height: 100vh;
   min-height: -webkit-fill-available;
@@ -10,15 +12,23 @@ html {
 main {
   height: 100vh;
   height: -webkit-fill-available;
-  max-height: 100vh;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 .form-control{
   margin-bottom: 15px;
 }
 
+.stickybar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+.space-menu{
+  margin-left:280px;
+}
 .dropdown-toggle { outline: 0; }
 
 .btn-toggle {
