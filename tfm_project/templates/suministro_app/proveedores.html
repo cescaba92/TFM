@@ -1,0 +1,55 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+
+
+{% block body_block %}
+<div class="">
+
+    <div class="p-5 text-left">
+        <div class="container py-5">
+          <h1 class="text-body-emphasis">Gestión de Proveedores</h1>
+          
+
+          <a type="button" class="btn btn-success" href="{% url 'proveedores_app:add_proveedor' %}">Crear Proveedores</a>
+          <div class="table-responsive card mt-4">
+            <div class="card-header card-header-secondary">
+                <p>
+                    Listado de Proveedores para la gestión.
+                </p>
+            </div>
+            <table class="table card-header">
+              <thead class="text-secondary">
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Dirección</th>
+                    <th scope="col">Correo Electrónico</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+
+            </thead>
+
+            <tbody> 
+                {% if proveedor_list %}
+                {% for proveedor in proveedor_list %}
+                <tr>
+                    <td><a href="">{{ proveedor.nom_proveedor }}</a></td>
+                    <td>{{ proveedor.dir_proveedor }}</td>
+                    <td>{{ proveedor.cont_mai_proveedor }}</td>
+                    <td>{{ proveedor.tip_proveedor }}</td>
+                    <td>
+                        <a type="button" class="btn btn-warning" href="{% url 'proveedores_app:update_proveedor' proveedor.id %}">Modificar</a>
+                        <a type="button" class="btn btn-danger" href="{% url 'proveedores_app:delete_proveedor' proveedor.id %}">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+</div>
+
+{% endblock %}

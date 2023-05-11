@@ -25,6 +25,8 @@ urlpatterns = [
     path("",views.index,name='index'),
     path("admin/", admin.site.urls),
     path("basic_app/",include('basic_app.urls')),
+    path("producto_app/",include('producto_app.urls')),
+    path("suministro_app/",include('suministro_app.urls'))
     #path("logout/",views.user_logout, name='logout'),
     
 ]

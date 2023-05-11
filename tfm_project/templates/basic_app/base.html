@@ -19,13 +19,23 @@
       <img class="" src="{% static 'images/cliente-4LifeLogo.png' %}" alt="Logo Cliente" >
     </a>
     <hr>
-    <ul class="nav nav-pills flex-column mb-auto">
+    <ul class="nav nav-pills flex-column">
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Web Master</a>  
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Administración</a>  
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
           <li><a class="dropdown-item" href="{% url 'admin:index' %}">Administrador Django</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{% url 'basic_app:user_list' %}">Usuarios</a></li>
+        </ul>
+      </div>
+    </ul>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Elementos Base</a>  
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="{% url 'producto_app:productos' %}">Productos</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{% url 'suministro_app:proveedores' %}">Proveedores</a></li>
         </ul>
       </div>
 
