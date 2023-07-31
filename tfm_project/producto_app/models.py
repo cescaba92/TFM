@@ -17,6 +17,8 @@ class Producto(models.Model):
     des_producto = models.CharField(max_length=264)
     fec_crea_producto = models.DateField(default=datetime.date.today)
 
+    def __str__(self): return "%s" % (self.nom_producto)
+
 class VariacionProducto(models.Model):
     sku_producto = models.CharField(max_length=264)
     nom_producto = models.CharField(max_length=264)

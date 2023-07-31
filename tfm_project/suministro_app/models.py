@@ -15,7 +15,8 @@ class TipoSuministro(models.Model):
 
 
 class Proveedor(models.Model):
-    nom_proveedor= models.CharField(max_length=264)
+    nom_proveedor = models.CharField(max_length=264)
+    nif_proveedor = models.CharField(max_length=9)
     dir_proveedor = models.CharField(max_length=264)
     cont_nom_proveedor = models.CharField(max_length=264)
     cont_tel_proveedor = models.CharField(max_length=264)
@@ -23,6 +24,7 @@ class Proveedor(models.Model):
     tip_proveedor = models.ForeignKey(TipoProveedor,on_delete=models.CASCADE)
     com_proveedor = models.CharField(max_length=264)
 
+    def __str__(self): return "%s" % (self.nom_proveedor)
 
 class Suministro(models.Model):
     sku_suministro = models.CharField(max_length=264)

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from suministro_app.forms import ProveedorForm, SuministroForm,SuministroFormSet
-from suministro_app.models import (Proveedor, Suministro)
+from suministro_app.forms import (ProveedorForm, SuministroForm, SuministroFormSet,EquipoForm)
+from suministro_app.models import (Proveedor, Suministro, Equipos)
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
 from django.forms.models import inlineformset_factory
 from django.contrib import messages
@@ -34,7 +34,7 @@ class ProveedorInLine():
 
         return redirect('suministro_app:proveedores')
 
-    def formset_suministro_valid(self,formset):
+    def formset_variants_valid(self,formset):
         """
         Hook for custom formset saving.Useful if you have multiple formsets
         """
@@ -47,7 +47,49 @@ class ProveedorInLine():
             variant.prov_suministro = self.object
             variant.save()
 
+class ProveedorUpdate(ProveedorInLine, UpdateView):
 
+    def get_context_data(self, **kwargs):
+        ctx = super(ProveedorUpdate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        return {
+            'variants': SuministroFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
+        }
+
+def delete_proveedor(request,pk):
+    try:
+        proveedor = Proveedor.objects.get(id=pk)
+    except Proveedor.DoesNotExist:
+        messages.success(
+            request, 'Object Does not exit'
+            )
+        return redirect('suministro_app:proveedores')
+
+    proveedor.delete()
+
+    messages.success(
+            request, 'Variant deleted successfully'
+            )
+    return redirect('suministro_app:proveedores')
+
+
+def delete_suministro(request, pk):
+    try:
+        variant = Suministro.objects.get(id=pk)
+    except Suministro.DoesNotExist:
+        messages.success(
+            request, 'Object Does not exit'
+            )
+        return redirect('suministro_app:proveedores', pk=variant.prod_asociado.id)
+
+    variant.delete()
+    messages.success(
+            request, 'Variant deleted successfully'
+            )
+    return redirect('suministro_app:proveedores', pk=variant.prod_asociado.id)
 
 
 class ProveedoresListView(ListView):
@@ -57,16 +99,59 @@ class ProveedoresListView(ListView):
 class ProveedoresCreateView(ProveedorInLine, CreateView):
     
     def get_context_data(self, **kwargs):
-        ctx = super(ProductosCreateView, self).get_context_data(**kwargs)
+        ctx = super(ProveedoresCreateView, self).get_context_data(**kwargs)
         ctx['named_formsets'] = self.get_named_formsets()
         return ctx
 
     def get_named_formsets(self):
         if self.request.method == "GET":
             return {
-                'variants': VariationFormSet(prefix='variants'),
+                'variants': SuministroFormSet(prefix='variants'),
             }
         else:
             return {
-                'variants': VariationFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
+                'variants': SuministroFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
             }
+class EquipoCreateView(CreateView):
+    model = Equipos
+    template_name='suministro_app/new_update_equipos.html'
+    form_class = EquipoForm
+
+    def form_invalid(self, form):
+
+         return redirect('suministro_app:equipos')
+
+    def form_valid(self, form):
+        form.save()
+        return redirect('suministro_app:equipos')
+
+class EquiposListView(ListView):
+    model = Equipos
+    template_name = 'suministro_app/equipos.html'
+
+class EquipoUpdate(UpdateView):
+    model = Equipos
+    template_name='suministro_app/new_update_equipos.html'
+    form_class = EquipoForm
+    
+    def form_valid(self, form):
+        messages.success(self.request, "The task was updated successfully.")
+        form.save()
+        return redirect('suministro_app:equipos')
+
+def delete_equipo(request,pk):
+    try:
+        equipo = Equipos.objects.get(id=pk)
+    except Proveedor.DoesNotExist:
+        messages.success(
+            request, 'Object Does not exit'
+            )
+        return redirect('suministro_app:equipos')
+
+    equipo.delete()
+
+    messages.success(
+            request, 'Variant deleted successfully'
+            )
+    return redirect('suministro_app:equipos')
+

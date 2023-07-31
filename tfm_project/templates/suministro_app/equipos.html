@@ -1,0 +1,55 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+
+
+{% block body_block %}
+<div class="">
+
+    <div class="p-5 text-left">
+        <div class="container py-5">
+          <h1 class="text-body-emphasis">Gestión de Equipos</h1>
+          
+
+          <a type="button" class="btn btn-success" href="{% url 'suministro_app:add_equipo' %}">Crear Equipo</a>
+          <div class="table-responsive card mt-4">
+            <div class="card-header card-header-secondary">
+                <p>
+                    Listado de Equipos para la gestión.
+                </p>
+            </div>
+            <table class="table card-header">
+              <thead class="text-secondary">
+                <tr>
+                    <th scope="col">Nro. de Serie</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Fabricante</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+
+            </thead>
+
+            <tbody> 
+                {% if equipos_list %}
+                {% for equipo in equipos_list %}
+                <tr>
+                    <td><a href="">{{ equipo.ser_equipo }}</a></td>
+                    <td>{{ equipo.nom_equipo }}</td>
+                    <td>{{ equipo.fabr_equipo }}</td>
+                    <td>{{ equipo.est_equipo }}</td>
+                    <td>
+                        <a type="button" class="btn btn-warning" href="{% url 'suministro_app:update_equipo' equipo.id %}">Modificar</a>
+                        <a type="button" class="btn btn-danger" href="{% url 'suministro_app:delete_equipo' equipo.id %}">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+</div>
+
+{% endblock %}

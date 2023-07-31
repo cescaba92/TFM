@@ -1,7 +1,39 @@
 from django import forms
 from suministro_app.models import Proveedor
 from suministro_app.models import Suministro
+from suministro_app.models import Equipos
 from django.forms import inlineformset_factory
+
+class EquipoForm(forms.ModelForm):
+
+    class Meta():
+        model = Equipos
+        fields = {'nom_equipo','fabr_equipo','ser_equipo','fec_adqui_equipo','vida_equipo','est_equipo','ubi_equipo','gar_equipo','prov_equipo'}
+
+        widgets = {
+            'nom_equipo': forms.TextInput(attrs={'class':'form-control'}),
+            'fabr_equipo': forms.TextInput(attrs={'class':'form-control'}),
+            'ser_equipo': forms.TextInput(attrs={'class':'form-control'}),
+            'fec_adqui_equipo':forms.DateInput(attrs={'class':'form-control'}),
+            'vida_equipo': forms.NumberInput(attrs={'class':'form-control'}),
+            'est_equipo': forms.Select(attrs={'class':'form-control'}),
+            'ubi_equipo': forms.TextInput(attrs={'class':'form-control'}),
+            'gar_equipo': forms.NumberInput(attrs={'class':'form-control'}),
+            'prov_equipo': forms.Select(attrs={'class':'form-control'}),
+        }
+
+        labels = {
+            'nom_equipo': 'Nombre',
+            'fabr_equipo': 'Fabricante',
+            'ser_equipo': 'Codigod de Serie',
+            'fec_adqui_equipo': 'Fecha Adquisición',
+            'vida_equipo': 'Vida Útil (Años)',
+            'est_equipo':'Estado',
+            'ubi_equipo': 'Ubicación',
+            'gar_equipo':'Garantia (Años)',
+            'prov_equipo':'Proveedor'
+        }
+    
 
 
 class ProveedorForm(forms.ModelForm):
@@ -9,9 +41,10 @@ class ProveedorForm(forms.ModelForm):
     class Meta():
         model = Proveedor
         #fields = ('username','email','password','first_name','last_name','is_active')
-        fields = ('nom_proveedor','dir_proveedor','cont_nom_proveedor','cont_tel_proveedor','cont_mai_proveedor','tip_proveedor','com_proveedor')
+        fields = ('nif_proveedor','nom_proveedor','dir_proveedor','cont_nom_proveedor','cont_tel_proveedor','cont_mai_proveedor','tip_proveedor','com_proveedor')
 
         widgets = {
+            'nif_proveedor': forms.TextInput(attrs={'class':'form-control'}),
             'nom_proveedor': forms.TextInput(attrs={'class':'form-control'}),
             'dir_proveedor': forms.TextInput(attrs={'class':'form-control'}),
             'cont_nom_proveedor': forms.TextInput(attrs={'class':'form-control'}),
@@ -22,6 +55,7 @@ class ProveedorForm(forms.ModelForm):
         }
 
         labels = {
+            'nif_proveedor': 'NIF',
             'nom_proveedor': 'Nombre',
             'dir_proveedor': 'Dirección',
             'cont_nom_proveedor': 'Nombre',

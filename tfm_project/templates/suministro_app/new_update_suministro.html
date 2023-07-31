@@ -1,0 +1,165 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+
+
+{% block body_block %}
+<link href="{% static 'css/productos.css' %}" rel="stylesheet" type="text/css">
+<div class="">
+
+  <div class="p-5 text-left">
+    <div class="container py-5">
+      <h1 class="text-body-emphasis">Nuevo Proveedor</h1>
+      <p class="col-lg-12">Ingresa los datos del proveedor y los suministros que proporciona</p>
+      <form enctype="multipart/form-data" class="container" method="post" id="product_form">
+      <div class="form-group">
+         {% csrf_token %}
+        <div class="form-row rowflex">
+            <div class="form-group col-md-6 inputflex">
+                <label for="id_variation_formset-0-nif_proveedor">{{form.nif_proveedor.label}}</label>
+                {{form.nif_proveedor}}
+            </div>
+            <div class="form-group col-md-6 inputflex">
+                <label for="id_variation_formset-0-nom_proveedor">{{form.nom_proveedor.label}}</label>
+                {{form.nom_proveedor}}
+            </div>
+        </div>
+        <div class="form-row rowflex">
+            <div class="form-group col-md-6 inputflex">
+                <label for="id_variation_formset-0-tip_proveedor">{{form.tip_proveedor.label}}</label>
+                {{form.tip_proveedor}}
+            </div>
+            <div class="form-group col-md-6 inputflex">
+                <label for="id_variation_formset-0-dir_proveedor">{{form.dir_proveedor.label}}</label>
+                {{form.dir_proveedor}}
+            </div>
+        </div>
+        <br>
+        <h4 class="card-title">Contacto de Proveedor</h4>
+        <br>
+        <div class="form-row rowflex">
+            <div class="form-group col-md-4 inputflex">
+                <label for="id_variation_formset-0-cont_nom_proveedor">{{form.cont_nom_proveedor.label}}</label>
+                {{form.cont_nom_proveedor}}
+            </div>
+            <div class="form-group col-md-4 inputflex">
+                <label for="id_variation_formset-0-cont_tel_proveedor">{{form.cont_tel_proveedor.label}}</label>
+                {{form.cont_tel_proveedor}}
+            </div>
+             <div class="form-group col-md-4 inputflex">
+                <label for="id_variation_formset-0-cont_mai_proveedor">{{form.cont_mai_proveedor.label}}</label>
+                {{form.cont_mai_proveedor}}
+            </div>
+        </div>
+        <div class="form-row rowflex">
+            <div class="form-group col-md-12 inputflex">
+                <label for="id_variation_formset-0-com_proveedor">{{form.com_proveedor.label}}</label>
+                {{form.com_proveedor}}
+            </div>
+        </div>
+      </div>
+      <div>
+
+        {% with named_formsets.variants as formset %}
+        {{ formset.management_form }}
+
+        <script type="text/html" id="variants-template"> 
+            <tr id="variants-__prefix__" class= hide_all>
+                {% for fields in formset.empty_form.hidden_fields %}
+                    {{ fields }}
+                {% endfor %}
+            
+                {% for fields in formset.empty_form.visible_fields %}
+                    <td>{{fields}}</td>
+                {% endfor %}
+            </tr>
+        </script>
+
+        <div class="table-responsive card mt-4">
+            <div class="card-header card-header-secondary">
+                <h4 class="card-title">Suministros</h4>
+                <p>Enumar los suministros que brinda el proveedor a la cadena de suministros</p>
+            </div>
+            <table class="table card-header">
+                <thead class="text-secondary">
+                    <th>SKU <span style="color: red;" class="required">*</span></th>
+                    <th>Nombre <span style="color: red;" class="required">*</span></th>
+                    <th>Tipo</th>
+                    <th>Acción</th>
+                </thead>
+                <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
+                    <!-- formset non forms errors -->
+                    {% for error in formset.non_form_errors %}
+                        <span style="color: red">{{ error }}</span>
+                    {% endfor %}
+                    {% for formss in formset %}
+                        {{ formss.management_form }}
+                        <tr id="variants-{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                            {{ formss.id }}
+                            {% for field in formss.visible_fields %}
+                                <td>
+                                    {{field}}
+                                    {% for error in field.errors %}
+                                        <span style="color: red">{{ error }}</span>
+                                    {% endfor %}
+                                    
+                                    {% comment %} {{ field.DELETE }} {% endcomment %}
+                                </td>
+                            {% endfor %}
+                            {% comment %} for delete {% endcomment %}
+                            {% if formss.instance.pk %}
+                                <td>
+                                     <a type="button" class="btn btn-danger" href="{% url 'producto_app:delete_variant' formss.instance.pk %}">Eliminar</a>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </td>            
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="#" id="add-variant-button" class="btn btn-secondary add-variants">Add More</a> <!-- id="add-inlineformsetname-button" -->
+        </div>
+      </div>
+       {% endwith %}
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+
+  </div>
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+<script>
+
+  $(document).ready(function() {
+    // when user clicks add more btn of variants
+      $('.add-variants').click(function(ev) {
+          ev.preventDefault();
+          var count = $('#item-variants').children().length;
+          var tmplMarkup = $('#variants-template').html();
+          var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+          $('#item-variants').append(compiledTmpl);
+  
+          // update form count
+          $('#id_variants-TOTAL_FORMS').attr('value', count+1);
+      });
+  });
+</script>
+{% endblock %}

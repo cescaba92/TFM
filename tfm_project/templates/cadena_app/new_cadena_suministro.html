@@ -1,0 +1,48 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+
+
+{% block body_block %}
+<link href="{% static 'css/productos.css' %}" rel="stylesheet" type="text/css">
+<div class="">
+
+  <div class="p-5 text-left">
+    <div class="container py-5">
+      <h1 class="text-body-emphasis">Cadena de Suministro para {{form.productonombre}}</h1>
+      <p class="col-lg-12">Ingresa los datos de la cadena de suministros </p>
+      <form enctype="multipart/form-data" class="container" method="post" id="product_form">
+      <div class="form-group">
+         {% csrf_token %}
+        <div class="form-row rowflex">
+            <div class="form-group col-md-6 inputflex" style="display:none;">
+                <label for="id_variation_formset-0-ser_equipo">{{form.prod_asociado.label}}</label>
+                {{form.prod_asociado}}
+            </div>
+        </div>
+        <div class="form-row rowflex">
+            <div class="form-group col-md-4 inputflex">
+                <label for="id_variation_formset-0-nom_equipo">{{form.fuente_energia.label}}</label>
+                {{form.fuente_energia}}
+            </div>
+            <div class="form-group col-md-4 inputflex">
+                <label for="id_variation_formset-0-fabr_equipo">{{form.tierra_ocupada.label}}</label>
+                {{form.tierra_ocupada}}
+            </div>
+            <div class="form-group col-md-4 inputflex">
+                <label for="id_variation_formset-0-prov_equipo">{{form.tierra_m2.label}}</label>
+                {{form.tierra_m2}}
+            </div>
+        </div>
+
+
+      </div>
+
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+
+  </div>
+</div>
+
+</div>
+
+{% endblock %}

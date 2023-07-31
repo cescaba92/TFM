@@ -38,6 +38,7 @@
                     <td>{{ producto.tip_producto }}</td>
                     <td>{{ producto.des_producto }}</td>
                     <td>
+                        <a type="button" class="btn btn-dark" href="{% url 'cadena_app:add_cadena' producto=producto.id %}">Cadena Suministro</a>
                         <a type="button" class="btn btn-warning" href="{% url 'producto_app:update_producto' producto.id %}">Modificar</a>
                         <a type="button" class="btn btn-danger" href="{% url 'producto_app:delete_producto' producto.id %}">Eliminar</a>
                     </td>

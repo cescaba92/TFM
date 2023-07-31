@@ -10,7 +10,7 @@
           <h1 class="text-body-emphasis">Gestión de Proveedores</h1>
           
 
-          <a type="button" class="btn btn-success" href="{% url 'proveedores_app:add_proveedor' %}">Crear Proveedores</a>
+          <a type="button" class="btn btn-success" href="{% url 'suministro_app:add_proveedor' %}">Crear Proveedores</a>
           <div class="table-responsive card mt-4">
             <div class="card-header card-header-secondary">
                 <p>
@@ -38,8 +38,8 @@
                     <td>{{ proveedor.cont_mai_proveedor }}</td>
                     <td>{{ proveedor.tip_proveedor }}</td>
                     <td>
-                        <a type="button" class="btn btn-warning" href="{% url 'proveedores_app:update_proveedor' proveedor.id %}">Modificar</a>
-                        <a type="button" class="btn btn-danger" href="{% url 'proveedores_app:delete_proveedor' proveedor.id %}">Eliminar</a>
+                        <a type="button" class="btn btn-warning" href="{% url 'suministro_app:update_proveedor' proveedor.id %}">Modificar</a>
+                        <a type="button" class="btn btn-danger" href="{% url 'suministro_app:delete_proveedor' proveedor.id %}">Eliminar</a>
                     </td>
                 </tr>
                 {% endfor %}
