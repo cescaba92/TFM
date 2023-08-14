@@ -112,6 +112,7 @@ class ProveedoresCreateView(ProveedorInLine, CreateView):
             return {
                 'variants': SuministroFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
             }
+            
 class EquipoCreateView(CreateView):
     model = Equipos
     template_name='suministro_app/new_update_equipos.html'

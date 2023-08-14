@@ -1,53 +1,94 @@
 from django.shortcuts import (render, redirect)
-from cadena_app.forms import CadenaNuevaForm
-from cadena_app.models import CadenaSuministro
+from cadena_app.forms import (CadenaNuevaForm,SuministroPlanFormSet,SuministroPlanCadenaForm)
+#from cadena_app.forms import CadenaSumiNuevoForm
+from cadena_app.models import (CadenaSuministro, Suministro_PlanCadena)
 from producto_app.models import (Producto, VariacionProducto)
+from suministro_app.models import (Suministro, Proveedor)
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
 from django.forms.models import inlineformset_factory
 from django.contrib import messages
-
+from django.http import JsonResponse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.shortcuts import redirect
 import logging
 
 
-class CadenaSuministroUpdate(UpdateView):
-    model = CadenaSuministro
-    template_name='cadena_app/new_cadena_suministro.html'
+def cargar_suministros(request):
+    proveedor_id = request.GET.get('proveedor_id')
+    suministros = Suministro.objects.filter(prov_suministro=proveedor_id)
+    data = [{'id':suministro.id,'nom_suministro':suministro.nom_suministro} for suministro in suministros]
+    return JsonResponse(data,safe=False)
+
+class CadenaSuministroInLine():
     form_class = CadenaNuevaForm
-    
-    def form_valid(self, form):
-        messages.success(self.request, "The task was updated successfully.")
-        form.save()
+    model = CadenaSuministro
+    template_name = 'cadena_app/update_suministro_cadena.html'
+
+    def form_invalid(self,form):
+        print("error")
+
         return redirect('producto_app:productos')
 
+
+    def form_valid(self,form):
+        named_formsets = self.get_named_formsets()
+
+        if not all((x.is_valid() for x in named_formsets.values())):
+            print("error")
+            return self.render_to_response(self.get_context_data(form=form))
+
+        self.object = form.save()
+
+        # for every formset, attempt to find a specific formset save function
+        # otherwise, just save.
+        for name, formset in named_formsets.items():
+            print("entro aqui")
+            formset_save_func = getattr(self, 'formset_{0}_valid'.format(name), None)
+            print("entro aqui 2")
+            if formset_save_func is not None:
+                formset_save_func(formset)
+                print("entro aqui 3")
+            else:
+                print("entro aqui 4")
+                formset.save()
+
+        return redirect('producto_app:productos')
+
+    def formset_variants_valid(self,formset):
+        """
+        Hook for custom formset saving.Useful if you have multiple formsets
+        """
+        variants = formset.save(commit=False)  # self.save_formset(formset, contact)
+        # add this 2 lines, if you have can_delete=True parameter 
+        # set in inlineformset_factory func
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for variant in variants:
+            variant.cadena_asociada = self.object
+            variant.save()
+
+class CadenaSuministroCreateView(CadenaSuministroInLine, CreateView):
+    
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+        producto_id = self.kwargs.get('pk')
+        print(f"Mi nombre es {producto_id}")
 
-    
         try:
-            cadena_id = self.kwargs.get('pk')
-            cadena_name = CadenaSuministro.objects.get(id=cadena_id)
-            #producto = Producto.objects.get(id=cadena_name.prod_asociado.id)
-            #print(f"Mi nombre es {producto.sku_producto} y tengo {producto.nom_producto} años.")
-            form.productonombre = cadena_name.prod_asociado.nom_producto
+            producto = Producto.objects.get(id=producto_id)
+            print(f"Mi nombre es {producto.sku_producto} y tengo {producto.nom_producto} años.")
+            form.fields['prod_asociado'].initial = producto
+            form.productonombre = producto.nom_producto
 
         except Producto.DoesNotExist:
             messages.success(request, 'Object Does not exit')
 
         return form
-    
 
-# Create your views here.
-class CadenaSuministroView(CreateView):
-    model = CadenaSuministro
-    template_name='cadena_app/new_cadena_suministro.html'
-    form_class = CadenaNuevaForm
-    #producto = Producto
 
     def get(self,request,*args,**kwards):
-        producto_id = self.kwargs.get('producto')
+        producto_id = self.kwargs.get('pk')
         print(f"Mi nombre es {producto_id}")
 
         try:
@@ -61,38 +102,89 @@ class CadenaSuministroView(CreateView):
 
         return redirect(reverse('cadena_app:update_cadena1', kwargs={'pk': cadena.id}))
 
+    def get_context_data(self, **kwargs):
+        ctx = super(CadenaSuministroCreateView, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        if self.request.method == "GET":
+            return {
+                'variants': SuministroPlanFormSet(prefix='variants'),
+            }
+        else:
+            return {
+                'variants': SuministroPlanFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
+            }
+
+
+class CadenaSuministroUpdateView(CadenaSuministroInLine, UpdateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CadenaSuministroUpdateView, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+ 
+
+    def get_named_formsets(self):
+
+        formsets = {
+        'variants': SuministroPlanFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
+        }
+
+        for formset_form in formsets['variants'].forms:
+            suministro_id = formset_form['suministro_asociado'].initial
+            if suministro_id is not None:
+                try:
+                    suministro = Suministro.objects.get(id=suministro_id)
+                    proveedor = Proveedor.objects.get(nom_proveedor=suministro.prov_suministro)
+                    print(f"get_form: {proveedor.id}")
+                    formset_form['proveedor_suministro'].initial = proveedor.id
+                except:
+                    print("error")
+
+
+        return formsets
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        producto_id = self.kwargs.get('producto')
-        print(f"Mi nombre es {producto_id}")
 
         try:
-            producto = Producto.objects.get(id=producto_id)
-            print(f"Mi nombre es {producto.sku_producto} y tengo {producto.nom_producto} años.")
-            form.fields['prod_asociado'].initial = producto
-            form.productonombre = producto.nom_producto
+            cadena_id = self.kwargs.get('pk')
+            cadena_name = CadenaSuministro.objects.get(id=cadena_id)
+            form.productonombre = cadena_name.prod_asociado.nom_producto
 
-        except Producto.DoesNotExist:
+
+            # for form_in_formset in self.get_named_formsets()['variants'].forms:
+            #     suministro_id = form_in_formset.fields['suministro_asociado'].initial
+
+            #     print(f"Valor: {suministro_id}")
+
+            #     suministro = Suministro.objects.get(id=suministro_id)
+                
+            #     proveedor_id = Proveedor.objects.get(id=suministro.prov_suministro)
+            #     form_in_formset.fields['proveedor_suministro'].initial = proveedor_id
+
+        except CadenaSuministro.DoesNotExist:
             messages.success(request, 'Object Does not exit')
 
         return form
-    
 
+def delete_CadenaSuministro(request, pk):
 
-    def form_invalid(self, form):
-        print("error")
+    try:
+        variant = Suministro_PlanCadena.objects.get(id=pk)
+    except CadenaSuministro.DoesNotExist:
+        messages.success(
+            request, 'Object Does not exit'
+            )
+        return redirect('cadena_app:update_cadena1', pk=variant.cadena_asociada.id)
 
-        return redirect('producto_app:productos')
-
-    def form_valid(self, form):
-        print("aqui")
-        form.save()
-
-
-        return redirect('producto_app:productos')
-
-  
-
+    variant.delete()
+    messages.success(
+            request, 'Variant deleted successfully'
+            )
+    return redirect('cadena_app:update_cadena1', pk=variant.cadena_asociada.id)
 
 
 

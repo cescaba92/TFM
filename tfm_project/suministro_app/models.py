@@ -32,6 +32,8 @@ class Suministro(models.Model):
     tip_suministro = models.ForeignKey(TipoSuministro,on_delete=models.CASCADE)
     prov_suministro = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
 
+    def __str__(self): return "%s" % (self.nom_suministro)
+
 class Equipos(models.Model):
     ACTIVO = "AC"
     MANTENIMIENTO = "MA"
