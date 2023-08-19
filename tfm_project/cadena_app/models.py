@@ -4,7 +4,7 @@ from producto_app.models import Producto
 from suministro_app.models import Suministro
 
 
-# Create your models here.
+# Cadena General
 
 class FuenteEnergia(models.Model):
     nom_energia = models.CharField(max_length=264)
@@ -23,12 +23,13 @@ class MidpointTierra(models.Model):
 
     def __str__(self): return "%s" % (self.nom_tipouso)
 
+#Suministros
+
 class CadenaSuministro(models.Model):
     prod_asociado = models.OneToOneField(Producto,on_delete=models.CASCADE)
     fuente_energia = models.ForeignKey(FuenteEnergia,on_delete=models.CASCADE)
     tierra_ocupada = models.ForeignKey(MidpointTierra,on_delete=models.CASCADE)
     tierra_m2 = models.FloatField()
-
 
 class Suministro_PlanCadena(models.Model):
     
@@ -57,13 +58,12 @@ class Suministro_PlanCadena(models.Model):
     )    
     cantidad_suministro = models.FloatField()
     
-
 class Midpoint_emision(models.Model):
     nom_midpoint = models.CharField(max_length=264)
     nom_emision = models.CharField(max_length=264)
     def __str__(self): return "%s" % (self.nom_emision)
 
-class sustancia_emision(models.Model):
+class Sustancia_emision(models.Model):
     ATMOSFERA = "AT"
     TIERRA = "TI"
     AGUA_DULCE = "AD"
@@ -90,16 +90,27 @@ class sustancia_emision(models.Model):
     unidad_emision = models.CharField(max_length=264)
     valor_emision = models.FloatField(default="Kg")
 
-    def __str__(self): return "%s" % (self.componente_emision)
-
-
-
-
+    def __str__(self): return "%s-%s" % (self.componente_emision,self.unidad_emision)
 
 class SuministroEmision_PlanCadena(models.Model):
     sumcadena_asociado = models.ForeignKey(Suministro_PlanCadena,on_delete=models.CASCADE)
-    sustancia_asociada = models.ForeignKey(sustancia_emision, on_delete=models.CASCADE)
+    sustancia_asociada = models.ForeignKey(Sustancia_emision, on_delete=models.CASCADE)
     cantidad_sustancia = models.FloatField()
+
+#Tramos de Viaje Plan
+
+class Energia_transporte(models.Model):
+    nom_energiatransporte = models.CharField(max_length=264);
+
+class Tipo_transporte(models.Model):
+    nom_transporte = models.CharField(max_length=264);
+
+class TramosExternos_PlanCadena(models.Model):
+    cadena_asociada = models.ForeignKey(CadenaSuministro,on_delete=models.CASCADE,null=True)
+    tipo_tramoexterno = models.ForeignKey(Tipo_transporte,on_delete=models.CASCADE,null=True)
+    energia_tramoexterno = models.ForeignKey(Energia_transporte,on_delete=models.CASCADE,null=True)
+    km_tramoexterno = models.FloatField()
+    
 
 
 

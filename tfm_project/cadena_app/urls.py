@@ -12,6 +12,9 @@ urlpatterns = [
      path('cadena-suministro/nuevo/<int:pk>',views.CadenaSuministroCreateView.as_view(),name='add_cadena'),
     path('update/<int:pk>',views.CadenaSuministroUpdateView.as_view(),name='update_cadena1'),
     path('cargar_suministros/',views.cargar_suministros,name='cargar_suministros'),
+    path('cargar_midpoints/',views.cargar_midpoints,name='cargar_midpoints'),
+    path('cadena-suministro/emisiones/<int:pk>',views.Suministro_PlanCadenaUpdateView.as_view(),name='add_emisionplan'),
    #path('cadena-suministro/suministros/<int:pk>', views.CadenaSumiNuevoForm.as_view(), name='suministro-suministro'),
    path('delete/<int:pk>',views.delete_CadenaSuministro,name='delete_cadenasuministro'),
+   path('delete-emision/<int:pk>',views.delete_SuministroEmision,name='delete_suministroEmision')
 ]

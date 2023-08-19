@@ -1,5 +1,5 @@
 from django import forms
-from cadena_app.models import (CadenaSuministro,Suministro_PlanCadena)
+from cadena_app.models import (CadenaSuministro,Suministro_PlanCadena,SuministroEmision_PlanCadena,Midpoint_emision,Sustancia_emision,TramosExternos_PlanCadena)
 #from cadena_app.models import Suministro_PlanCadena
 from suministro_app.models import (Proveedor, Suministro)
 from django.forms import inlineformset_factory
@@ -23,6 +23,9 @@ class CadenaNuevaForm(forms.ModelForm):
             'tierra_ocupada': 'Tipo de Tierra Ocupada',
             'tierra_m2': 'm2 de uso',
         }
+
+
+#Suministro y Emisiones
 
 class SuministroPlanCadenaForm(forms.ModelForm):
     proveedor_suministro = forms.ChoiceField(choices=[],widget= forms.Select(attrs={'class':'proveedor-select form-control','onchange':'cargarProductos(this);'}))
@@ -51,6 +54,48 @@ class SuministroPlanCadenaForm(forms.ModelForm):
 
         self.fields['proveedor_suministro'].choices =[('', '---------')]+[(proveedor.id,proveedor) for proveedor in proveedores]
 
+class SuministroEmisionPlanCadenaForm(forms.ModelForm):
+    midpoint_emision = forms.ChoiceField(choices=[],widget= forms.Select(attrs={'class':'midpoint-select form-control','onchange':'cargarEmisiones(this);'}))
+    tipo_emision = forms.ChoiceField(choices=[],widget=forms.Select(attrs={'class':'tipo-select form-control','onchange':'cargarTipo(this);'}))
 
+    class Meta():
+        model = SuministroEmision_PlanCadena
+        fields={'tipo_emision','midpoint_emision','sumcadena_asociado','sustancia_asociada','cantidad_sustancia'}
+
+        widgets = {
+            'tipo_emision':forms.Select(attrs={'class':'tipo-select form-control'}),
+            'midpoint_emision':forms.Select(attrs={'class':'midpoint-select'}),
+            'sumcadena_asociado':forms.Select(attrs={'class':'form-control'}),
+            'sustancia_asociada':forms.Select(attrs={'class':'sustancia-select form-control'}),
+            'cantidad_sustancia': forms.NumberInput(attrs={'class':'form-control'})
+        }
+
+        field_order = ['tipo_emision','midpoint_emision','sustancia_asociada','cantidad_sustancia','sumcadena_asociado']
+
+    def __init__(self, *args, **kwargs):
+        super(SuministroEmisionPlanCadenaForm, self).__init__(*args, **kwargs)
+
+        #emisiones = Sustancia_emision.objects.all();
+        midpoints_emision = Midpoint_emision.objects.all();
+        #self.fields['sustancia_asociada'].choices = [('', '---------')]
+        self.fields['midpoint_emision'].choices =[('', '---------')]+[(midpoint_emision.id,midpoint_emision) for midpoint_emision in midpoints_emision]
+        self.fields['tipo_emision'].choices = [('', '---------')]+[('AT', 'Atmósfera')]+[('TI', 'Tierra')]+[('AD', 'Agua Dulce')]+[('AS', 'Océanos')]+[('RF', 'Recursos Fosiles')]+[('CR', 'Consumo Recursos')]
+
+SuministroEmisionPlanFormSet = inlineformset_factory(Suministro_PlanCadena, SuministroEmision_PlanCadena,form=SuministroEmisionPlanCadenaForm,extra=1,can_delete=False,can_delete_extra=True)
 SuministroPlanFormSet = inlineformset_factory(CadenaSuministro, Suministro_PlanCadena,form=SuministroPlanCadenaForm,extra=1,can_delete=False,can_delete_extra=True)
 
+
+#Tramos de Viaje
+class TramosExternos_PlanCadenaForm(forms.ModelForm):
+
+    class Meta():
+        model= TramosExternos_PlanCadena
+        fields={'tipo_tramoexterno','energia_tramoexterno','km_tramoexterno'}
+
+        widgets = {
+            'tipo_tramoexterno':forms.Select(attrs={'class':'form-control'}),
+            'energia_tramoexterno':forms.Select(attrs={'class':'form-control'}),
+            'km_tramoexterno':forms.NumberInput(attrs={'class':'form-control'})
+        }
+
+SuministroPlanFormSet = inlineformset_factory(CadenaSuministro, TramosExternos_PlanCadena,form=TramosExternos_PlanCadenaForm,extra=1,can_delete=False,can_delete_extra=True)

@@ -1,4 +1,10 @@
+.b-example-vr {
+    width: 0.5rem !important;
+ }
 
+.contenido{
+  width:100%;
+}
 
 body {
   min-height: 100vh;
