@@ -152,3 +152,11 @@ LOGGING = {
         'level': 'INFO',  # Puedes ajustar el nivel de gravedad de los mensajes que se mostrarán
     },
 }
+
+# ... Otras configuraciones ...
+
+CODIGO_C02 = 35
+CODIGO_NOX = 31
+CODIGO_SO2 = 37
+CODIGO_PM = 36
+CODIGO_CO60 = 38

@@ -8,7 +8,7 @@ class EquipoForm(forms.ModelForm):
 
     class Meta():
         model = Equipos
-        fields = {'nom_equipo','fabr_equipo','ser_equipo','fec_adqui_equipo','vida_equipo','est_equipo','ubi_equipo','gar_equipo','prov_equipo'}
+        fields = {'nom_equipo','fabr_equipo','ser_equipo','fec_adqui_equipo','vida_equipo','est_equipo','ubi_equipo','gar_equipo','prov_equipo','potencia_equipo'}
 
         widgets = {
             'nom_equipo': forms.TextInput(attrs={'class':'form-control'}),
@@ -20,6 +20,7 @@ class EquipoForm(forms.ModelForm):
             'ubi_equipo': forms.TextInput(attrs={'class':'form-control'}),
             'gar_equipo': forms.NumberInput(attrs={'class':'form-control'}),
             'prov_equipo': forms.Select(attrs={'class':'form-control'}),
+            'potencia_equipo': forms.NumberInput(attrs={'class':'form-control'}),
         }
 
         labels = {
@@ -31,7 +32,8 @@ class EquipoForm(forms.ModelForm):
             'est_equipo':'Estado',
             'ubi_equipo': 'Ubicación',
             'gar_equipo':'Garantia (Años)',
-            'prov_equipo':'Proveedor'
+            'prov_equipo':'Proveedor',
+            'potencia_equipo':'Potencia (W)'
         }
     
 

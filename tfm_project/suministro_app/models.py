@@ -59,3 +59,6 @@ class Equipos(models.Model):
     ubi_equipo = models.CharField(max_length=264)
     gar_equipo = models.IntegerField()
     prov_equipo = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
+    potencia_equipo = models.FloatField(default=0)
+
+    def __str__(self): return "%s" % (self.nom_equipo)
