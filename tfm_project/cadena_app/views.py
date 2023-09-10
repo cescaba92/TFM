@@ -1,6 +1,7 @@
 from django.shortcuts import (render, redirect)
 from cadena_app.forms import (CadenaNuevaForm,SuministroPlanFormSet,SuministroPlanCadenaForm,SuministroEmisionPlanFormSet,SuministroTramosPlanFormSet,Actividad_PlanCadenaForm,ActividadPlanFormSet,ActividadEmisionPlanCadenaForm,ActividadEmisionPlanFormSet)
-from cadena_app.models import (CadenaSuministro, Suministro_PlanCadena,Sustancia_emision,Midpoint_emision,SuministroEmision_PlanCadena,Tramos_PlanCadena,Actividad_PlanCadena,ActividadEmision_PlanCadena,MidpointEmision_PlanCadena,Sustancia_Midpoint_emision,Categoria_emision,MidpointTramos)
+from cadena_app.models import (CadenaSuministro, Suministro_PlanCadena,Sustancia_emision,Midpoint_emision,SuministroEmision_PlanCadena,Tramos_PlanCadena,Actividad_PlanCadena,ActividadEmision_PlanCadena,MidpointEmision_PlanCadena,Sustancia_Midpoint_emision,Categoria_emision,MidpointTramos,Categoria_emision)
+from cadena_app.models import (MidpointEndpointFactor, CadenaCalculosEndpoint,CalculosEndpoint,Endpoint)
 from producto_app.models import (Producto, VariacionProducto)
 from suministro_app.models import (Suministro, Proveedor)
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
@@ -15,57 +16,161 @@ from django.conf import settings
 import logging
 
 # ============================================================
+# Proceso de Calculo de Endpoint
+# ============================================================
+
+def calcularEndpoints(cadena):
+
+    try:
+        cadena_calculos = CadenaCalculosEndpoint.objects.filter(cadena_asociada=cadena)
+
+        for cadena_calculo in cadena_calculos:
+            cadena_calculo.valor = 0.00
+            cadena_calculo.save()
+    except CadenaCalculosEndpoint.DoesNotExist:
+        print("No existe ninguna cadena asociada")
+
+    try:
+        midpointEmisiones = MidpointEmision_PlanCadena.objects.filter(cadena_asociada=cadena)
+        for midpointEmision in midpointEmisiones:
+            midpoint = midpointEmision.sustancia_midpoint_asociado.midpoint_emision
+            factorEndpoints = MidpointEndpointFactor.objects.filter(midpoint=midpoint)
+
+            for factorx in factorEndpoints:
+                calculoendpoint = CalculosEndpoint.objects.get(id=factorx.calculosEndpoint.id)
+                cadena_calculo = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena,midpoint_endpoint=calculoendpoint.endpoint)
+                valor_anterior = cadena_calculo.valor
+
+                valor_agregar = midpointEmision.points_midpoint * factorx.factor
+                nuevo_valor = valor_anterior + valor_agregar
+
+                cadena_calculo.valor = nuevo_valor
+                print(f"valor es: {nuevo_valor}")
+                cadena_calculo.save()
+
+    except MidpointEmision_PlanCadena.DoesNotExist:
+        print("No existe ninguna emision asociada a la cadena")
+
+def crearVariablesdeCalculo(cadena):
+    #codigo = cadena.id
+    print(f"cadena es: {cadena}")
+
+    cadena_suministro = CadenaSuministro.objects.get(id=cadena)
+    
+    print(f"la cadena_suministro es: {cadena_suministro.id}")
+    
+    cadenaExists = CadenaCalculosEndpoint.objects.filter(cadena_asociada=cadena_suministro)
+
+    if not cadenaExists:
+        print("NO EXISTE")
+        endpoints = Endpoint.objects.all()
+
+        for endpoint in endpoints:
+            cadenacalculosendpoint = CadenaCalculosEndpoint(cadena_asociada=cadena_suministro,midpoint_endpoint=endpoint,valor=0.00)
+            cadenacalculosendpoint.save()
+    else:
+        print("YA EXISTE")
+
+# ============================================================
 # Proceso de Calculo de Midpoints
 # ============================================================
 
-def calcularemisionesTierra(id_cadena,midpointTierra,cantidad):    
-    points_occ = cantidad * midpointTierra.cfm_tipouso
-    points_relax = cantidad * midpointTierra.cfm_relax_tipouso
-    tipo_midpoint_occ = "TO"
-    tipo_midpoint_rel = "TX"
-    midpoints_emision_asociada = Midpoint_emision.objects.get(nom_midpoint='Tierra Utilizada')
-    cadena = CadenaSuministro.objects.get(id=id_cadena)
+
+def calcularemisionesTierra(id_cadena,midpointTierra,cantidad):  
+
+    try:
+
+        cadena = CadenaSuministro.objects.get(id=id_cadena)
+        tipo_midpoint = "TI"
+        try:
+            #categoria = Categoria_emision.objects.get(nom_categoria=midpointTierra.nom_tipouso)
+            sustancia = Sustancia_emision.objects.get(componente_emision=midpointTierra.nom_tipouso)
+            print(f"Mi sustancia es {sustancia.id}")
+            limpiarEmisionesTierra()
+            midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=sustancia)
+            for midpoint in midpoints:
+                points = midpoint.valor_emision * cantidad
+                print(f"Mi midpoint es {midpoint.id}")
+                try:
+                    midpointEmision = MidpointEmision_PlanCadena.objects.get(cadena_asociada=cadena,sustancia_midpoint_asociado=midpoint,tipo_midpoint=tipo_midpoint)
+                    midpointEmision.points_midpoint = points
+                    midpointEmision.save()
+
+                except MidpointEmision_PlanCadena.DoesNotExist:
+                    midpointEmision = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,sustancia_midpoint_asociado=midpoint,points_midpoint=points)
+                    midpointEmision.save()
+
+            calcularEndpoints(id_cadena)
+        except Sustancia_emision.DoesNotExist:
+            print("No se encontro sustancia emision con el nombre de la categoria")
+    except CadenaSuministro.DoesNotExist:
+        print("aun no hay cadena de Suministro")
     
-    try:
-        midpointOcc = MidpointEmision_PlanCadena.objects.get(tipo_midpoint=tipo_midpoint_occ,cadena_asociada=cadena)
-        midpointOcc.points_midpoint = points_occ
-        midpointOcc.save()
+    #points_occ = cantidad * midpointTierra.cfm_tipouso
+    #points_relax = cantidad * midpointTierra.cfm_relax_tipouso
+    #tipo_midpoint_occ = "TO"
+    #tipo_midpoint_rel = "TX"
+    # midpoints_emision_asociada = Midpoint_emision.objects.get(nom_midpoint='Tierra Utilizada')
+   
+    
+    # try:
+    #     midpointOcc = MidpointEmision_PlanCadena.objects.get(tipo_midpoint=tipo_midpoint_occ,cadena_asociada=cadena)
+    #     midpointOcc.points_midpoint = points_occ
+    #     midpointOcc.save()
 
-    except MidpointEmision_PlanCadena.DoesNotExist:
-        midpointOcc = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint_occ,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points_occ)
-        midpointOcc.save()
-    try:
-        midpointRel = MidpointEmision_PlanCadena.objects.get(tipo_midpoint=tipo_midpoint_rel,cadena_asociada=cadena)
-        midpointRel.points_midpoint = points_relax
-        midpointRel.save()
-    except:
-        midpointRel = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint_rel,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points_relax)
-        midpointRel.save()
+    # except MidpointEmision_PlanCadena.DoesNotExist:
+    #     midpointOcc = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint_occ,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points_occ)
+    #     midpointOcc.save()
+    # try:
+    #     midpointRel = MidpointEmision_PlanCadena.objects.get(tipo_midpoint=tipo_midpoint_rel,cadena_asociada=cadena)
+    #     midpointRel.points_midpoint = points_relax
+    #     midpointRel.save()
+    # except:
+    #     midpointRel = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint_rel,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points_relax)
+    #     midpointRel.save()
 
+def limpiarEmisionesSuministro(suministroEmision):
+    midpointsEmision = MidpointEmision_PlanCadena.objects.filter(suministroEmision_asociado=suministroEmision)
+
+    for midpointEmision in midpointsEmision:
+        midpointEmision.delete()
+
+def limpiarEmisionesTierra():
+    midpointsEmision = MidpointEmision_PlanCadena.objects.filter(tipo_midpoint="TI")
+
+    for midpointEmision in midpointsEmision:
+        midpointEmision.delete()
+
+def limpiarEmisionesActividades(actividadEmision):
+    midpointsEmision = MidpointEmision_PlanCadena.objects.filter(actividademision_asociado=actividadEmision)
+
+    for midpointEmision in midpointsEmision:
+        midpointEmision.delete()
 
 def calcularemisionesSuministro(suministroEmision):
     
     cadena = suministroEmision.sumcadena_asociado.cadena_asociada
     tipo_midpoint = "SU"
-
-    emision_midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=suministroEmision.sustancia_asociada)
-
-    for emision_midpoint in emision_midpoints:
-        midpoints_emision_asociada = emision_midpoint.midpoint_emision
-        suministroEmision_asociado = suministroEmision
-        points = emision_midpoint.valor_emision * suministroEmision.cantidad_sustancia
-        print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
+    suministroEmision_asociado = suministroEmision
+    midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=suministroEmision.sustancia_asociada)
+    
+    limpiarEmisionesSuministro(suministroEmision_asociado)
+    
+    for midpoint in midpoints:
+        #midpoints_emision_asociada = emision_midpoint.midpoint_emision
+        points = midpoint.valor_emision * suministroEmision.cantidad_sustancia
+        #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
         
         try:
-            midpoint = MidpointEmision_PlanCadena.objects.get(suministroEmision_asociado=suministroEmision_asociado,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint=tipo_midpoint)
-            midpoint.points_midpoint = points
-            midpoint.save()
+            midpointEmision = MidpointEmision_PlanCadena.objects.get(cadena_asociada=cadena,suministroEmision_asociado=suministroEmision_asociado,sustancia_midpoint_asociado=midpoint,tipo_midpoint=tipo_midpoint)
+            midpointEmision.points_midpoint = points
+            midpointEmision.save()
 
         except MidpointEmision_PlanCadena.DoesNotExist:
-            midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,suministroEmision_asociado=suministroEmision_asociado)
-            midpoint.save()
+            midpointEmision = MidpointEmision_PlanCadena(cadena_asociada=cadena,suministroEmision_asociado=suministroEmision_asociado,sustancia_midpoint_asociado=midpoint,tipo_midpoint=tipo_midpoint,points_midpoint=points)
+            midpointEmision.save()
 
-
+    calcularEndpoints(cadena)        
 
     #midpoints_emision_asociada = suministroEmision.sustancia_asociada.midpoint_emision
     #suministroEmision_asociado = suministroEmision
@@ -95,7 +200,7 @@ def calcularemisionEquipos(actividad_PlanCadena):
         midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=dupla[0])
 
         for midpoint in midpoints:
-            midpoints_emision_asociada = midpoint.midpoint_emision
+            #midpoints_emision_asociada = midpoint.midpoint_emision
             points = dupla[1] * midpoint.valor_emision
 
             try:
@@ -106,26 +211,29 @@ def calcularemisionEquipos(actividad_PlanCadena):
                 midpointEmision = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,sustancia_midpoint_asociado=midpoint,points_midpoint=points,actividad_asociada=actividad)
                 midpointEmision.save()
 
- 
+    calcularEndpoints(cadena) 
 
 def calcularemisionesActividades(actividadEmision):
     cadena = actividadEmision.actividadplan_asociado.cadena_asociada
     tipo_midpoint = "AC"
-    emision_midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=actividadEmision.sustancia_asociada)
-    print("Entro Aqui")
-    for emision_midpoint in emision_midpoints:
-        midpoint_emision_asociada = emision_midpoint.midpoint_emision
-        actividademision_asociado = actividadEmision
-        points = emision_midpoint.valor_emision * actividadEmision.cantidad_sustancia
+    midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=actividadEmision.sustancia_asociada)
+    actividademision_asociado = actividadEmision
+    limpiarEmisionesActividades(actividademision_asociado)
+
+    for midpoint in midpoints:
+        #midpoint_emision_asociada = midpoint.midpoint_emision
+        points = midpoint.valor_emision * actividadEmision.cantidad_sustancia
 
         try:
-            midpoint = MidpointEmision_PlanCadena.objects.get(actividademision_asociado=actividademision_asociado,midpoints_emision_asociada=midpoint_emision_asociada,tipo_midpoint=tipo_midpoint)
-            midpoint.points_midpoint = points
-            midpoint.save()
+            midpointEmision = MidpointEmision_PlanCadena.objects.get(cadena_asociada=cadena,sustancia_midpoint_asociado=midpoint,actividademision_asociado=actividademision_asociado,tipo_midpoint=tipo_midpoint)
+            midpointEmision.points_midpoint = points
+            midpointEmision.save()
 
         except MidpointEmision_PlanCadena.DoesNotExist:
-            midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoint_emision_asociada,points_midpoint=points,actividademision_asociado=actividademision_asociado)
-            midpoint.save()
+            midpointEmision = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,sustancia_midpoint_asociado=midpoint,points_midpoint=points,actividademision_asociado=actividademision_asociado)
+            midpointEmision.save()
+
+    calcularEndpoints(cadena) 
 
 def calcularEmisionesTramos(tramos_PlanCadena):
     print(f"Mi tramos_PlanCadena es {tramos_PlanCadena.id}")
@@ -142,67 +250,87 @@ def calcularEmisionesTramos(tramos_PlanCadena):
         nox_tramo_point = 0.0
         pm_tramo_point = 0.0
 
+    puntos_a_revisar= [(settings.CODIGO_C02,co2_tramo_point),(settings.CODIGO_NOX,nox_tramo_point),(settings.CODIGO_PM,pm_tramo_point)]
+
+    print("Genero duplas")
     cadena = tramos_PlanCadena.cadena_asociada
-    
+    tramo_PlanCadena = tramos_PlanCadena
     tipo_midpoint = "TR"
 
-    #Registro CO2
-    codigo_c02 = 35
-    emision_midpoints1 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_c02)
 
-    for emision_midpoint in emision_midpoints1:
-        midpoints_emision_asociada = emision_midpoint.midpoint_emision
-        tramos_PlanCadena = tramos_PlanCadena
-        points = emision_midpoint.valor_emision * co2_tramo_point
-        #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
+    for dupla in puntos_a_revisar:
+        midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=dupla[0])
+        print("entro a la dupla")
+        for midpoint in midpoints:
+            points = dupla[1]*midpoint.valor_emision
+
+            try:
+                midpointEmision = MidpointEmision_PlanCadena.objects.get(cadena_asociada=cadena,sustancia_midpoint_asociado=midpoint,tipo_midpoint=tipo_midpoint,tramos_PlanCadena=tramos_PlanCadena)
+                midpointEmision.points_midpoint = points
+                midpointEmision.save()
+
+            except MidpointEmision_PlanCadena.DoesNotExist:
+                midpointEmision = MidpointEmision_PlanCadena(cadena_asociada=cadena,sustancia_midpoint_asociado=midpoint,tipo_midpoint=tipo_midpoint,tramos_PlanCadena=tramos_PlanCadena,points_midpoint=points)
+                midpointEmision.save()
+
+    calcularEndpoints(cadena) 
+    # #Registro CO2
+    # codigo_c02 = 35
+    # emision_midpoints1 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_c02)
+
+    # for emision_midpoint in emision_midpoints1:
+    #     midpoints_emision_asociada = emision_midpoint.midpoint_emision
         
-        try:
-            midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint=tipo_midpoint)
-            midpoint.points_midpoint = points
-            midpoint.save()
-
-        except MidpointEmision_PlanCadena.DoesNotExist:
-            midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
-            midpoint.save()
-
-    #Registro NOX
-    codigo_nox = 31
-    emision_midpoints2 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_nox)
-
-    for emision_midpoint in emision_midpoints2:
-        midpoints_emision_asociada = emision_midpoint.midpoint_emision
-        tramos_PlanCadena = tramos_PlanCadena
-        points = emision_midpoint.valor_emision * nox_tramo_point
-        #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
+    #     points = emision_midpoint.valor_emision * co2_tramo_point
+    #     #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
         
-        try:
-            midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint="TN")
-            midpoint.points_midpoint = points
-            midpoint.save()
+    #     try:
+    #         midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint=tipo_midpoint)
+    #         midpoint.points_midpoint = points
+    #         midpoint.save()
 
-        except MidpointEmision_PlanCadena.DoesNotExist:
-            midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint="TN",midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
-            midpoint.save()
+    #     except MidpointEmision_PlanCadena.DoesNotExist:
+    #         midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
+    #         midpoint.save()
+
+    # #Registro NOX
+    # codigo_nox = 31
+    # emision_midpoints2 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_nox)
+
+    # for emision_midpoint in emision_midpoints2:
+    #     midpoints_emision_asociada = emision_midpoint.midpoint_emision
+    #     tramos_PlanCadena = tramos_PlanCadena
+    #     points = emision_midpoint.valor_emision * nox_tramo_point
+    #     #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
+        
+    #     try:
+    #         midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint="TN")
+    #         midpoint.points_midpoint = points
+    #         midpoint.save()
+
+    #     except MidpointEmision_PlanCadena.DoesNotExist:
+    #         midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint="TN",midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
+    #         midpoint.save()
     
-    #Registro PM
-    codigo_pm = 36
+    # #Registro PM
+    # codigo_pm = 36
 
-    emision_midpoints3 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_pm)
+    # emision_midpoints3 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_pm)
 
-    for emision_midpoint in emision_midpoints3:
-        midpoints_emision_asociada = emision_midpoint.midpoint_emision
-        tramos_PlanCadena = tramos_PlanCadena
-        points = emision_midpoint.valor_emision * pm_tramo_point
-        #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
+    # for emision_midpoint in emision_midpoints3:
+    #     midpoints_emision_asociada = emision_midpoint.midpoint_emision
+    #     tramos_PlanCadena = tramos_PlanCadena
+    #     points = emision_midpoint.valor_emision * pm_tramo_point
+    #     #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
         
-        try:
-            midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint=tipo_midpoint)
-            midpoint.points_midpoint = points
-            midpoint.save()
+    #     try:
+    #         midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint=tipo_midpoint)
+    #         midpoint.points_midpoint = points
+    #         midpoint.save()
 
-        except MidpointEmision_PlanCadena.DoesNotExist:
-            midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
-            midpoint.save()
+    #     except MidpointEmision_PlanCadena.DoesNotExist:
+    #         midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
+    #         midpoint.save()
 
 # ============================================================
 # Cadena de Suministro Principal
@@ -232,8 +360,11 @@ class CadenaSuministroInLine():
         midpointTierra = form.cleaned_data['tierra_ocupada']
         cantidad = form.cleaned_data['tierra_m2']
 
-        #print(f"Mi cadena es {midpointTierra.nom_tipouso}")
-        calcularemisionesTierra(cadena,midpointTierra,cantidad)
+        print(f"Mi cadena es {self.object.id}")
+        crearVariablesdeCalculo(self.object.id)
+
+        calcularemisionesTierra(self.object.id,midpointTierra,cantidad)
+        
 
         # for every formset, attempt to find a specific formset save function
         # otherwise, just save.
@@ -371,7 +502,6 @@ class CadenaSuministroUpdateView(CadenaSuministroInLine, UpdateView):
                     formset_form['proveedor_suministro'].initial = proveedor.id
                 except:
                     print("error")
-
 
         return formsets
 

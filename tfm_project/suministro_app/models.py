@@ -22,7 +22,7 @@ class Proveedor(models.Model):
     cont_tel_proveedor = models.CharField(max_length=264)
     cont_mai_proveedor = models.EmailField(max_length=264)
     tip_proveedor = models.ForeignKey(TipoProveedor,on_delete=models.CASCADE)
-    com_proveedor = models.CharField(max_length=264)
+    com_proveedor = models.CharField(max_length=264,blank=True,null=True)
 
     def __str__(self): return "%s" % (self.nom_proveedor)
 

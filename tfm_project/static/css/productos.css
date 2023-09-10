@@ -14,3 +14,40 @@
 .contenido{
   width:100%;
 }
+
+.labelformulario{
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.colorcard{
+  background-color: #21252908;
+}
+
+.badge-boton{
+    background: #17a2b8;
+    padding: 10px;
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+.badge-close{
+    background: #6c757d;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.badge-little{
+    background: #17a2b8;
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 11px;
+    margin-left:5px;
+}

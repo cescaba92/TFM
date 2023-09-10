@@ -8,96 +8,30 @@
 
   <div class="p-5 text-left">
     <div class="container py-5">
-      <h1 class="text-body-emphasis">Nuevo Producto/Servicio</h1>
-      <p class="col-lg-12">Ingresa los datos del producto final o servicio que se vendar al cliente</p>
+            {% if form.producto %}
+            <h1 class="text-body-emphasis">Gestión de Productos: {{form.producto}}</h1>
+            {% else %}
+            <h1 class="text-body-emphasis">Gestión de Productos: Nuevo</h1>
+            {% endif %}
+
+      <p class="col-lg-12">Ingesa los datos del producto final o servicio que se vendar al cliente</p>
       <form enctype="multipart/form-data" class="container" method="post" id="product_form">
       <div class="form-group">
          {% csrf_token %}
-         {{form.as_table}}
+        
       </div>
-      <div>
-
-        {% with named_formsets.variants as formset %}
-        {{ formset.management_form }}
-
-        <script type="text/html" id="variants-template"> 
-            <tr id="variants-__prefix__" class= hide_all>
-                {% for fields in formset.empty_form.hidden_fields %}
-                    {{ fields }}
-                {% endfor %}
-            
-                {% for fields in formset.empty_form.visible_fields %}
-                    <td>{{fields}}</td>
-                {% endfor %}
-            </tr>
-        </script>
-
         <div class="table-responsive card mt-4">
-            <div class="card-header card-header-secondary">
-                <h4 class="card-title">Variaciones del Producto</h4>
-                <p>En caso el producto tenga variaciones, se pueden agregar lineas abajo. Peso en Kg y medidas en cm.</p>
-            </div>
-            <table class="table card-header">
-                <thead class="text-secondary">
-                    <th>SKU <span style="color: red;" class="required">*</span></th>
-                    <th>Nombre <span style="color: red;" class="required">*</span></th>
-                    <th>Peso (Kg)</th>
-                    <th>Largo (cm)</th>
-                    <th>Ancho (cm)</th>
-                    <th>Profundidad (cm)</th>
-                    <th>Acción</th>
-                </thead>
-                <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
-                    <!-- formset non forms errors -->
-                    {% for error in formset.non_form_errors %}
-                        <span style="color: red">{{ error }}</span>
-                    {% endfor %}
-                    {% for formss in formset %}
-                        {{ formss.management_form }}
-                        <tr id="variants-{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
-                            {{ formss.id }}
-                            {% for field in formss.visible_fields %}
-                                <td>
-                                    {{field}}
-                                    {% for error in field.errors %}
-                                        <span style="color: red">{{ error }}</span>
-                                    {% endfor %}
-                                    
-                                    {% comment %} {{ field.DELETE }} {% endcomment %}
-                                </td>
-                            {% endfor %}
-                            {% comment %} for delete {% endcomment %}
-                            {% if formss.instance.pk %}
-                                <td>
-                                     <a type="button" class="btn btn-danger" href="{% url 'producto_app:delete_variant' formss.instance.pk %}">Eliminar</a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
-                                </td>            
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <a href="#" id="add-variant-button" class="btn btn-secondary add-variants">Add More</a> <!-- id="add-inlineformsetname-button" -->
-        </div>
+                <div class="card-header card-header-secondary">
+                    <h2 class="card-title">Datos Generales</h2>
+                </div>
+                <div class="card-body colorcard" style="background-color:#21252908;">
+                 
+                  {{form.as_table}}
+                </div>
       </div>
-       {% endwith %}
+     <br>
       <button type="submit" class="btn btn-primary">Guardar</button>
+      <a href="{% url 'producto_app:productos' %}"><button type="button" class="btn btn-secondary">Cancelar</button></a>
     </form>
 
   </div>

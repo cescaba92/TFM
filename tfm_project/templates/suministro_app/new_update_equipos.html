@@ -8,63 +8,83 @@
 
   <div class="p-5 text-left">
     <div class="container py-5">
-      <h1 class="text-body-emphasis">Nuevo Equipo</h1>
+
+    {% if form.nombre %}
+    <h1 class="text-body-emphasis">Gestión de Equipo: {{form.nombre}}</h1>
+    {% else %}
+    <h1 class="text-body-emphasis">Gestión de Equipo: Nuevo </h1>
+    {% endif %}
+
+      
       <p class="col-lg-12">Ingresa los datos del equipo/activo de producción</p>
+
       <form enctype="multipart/form-data" class="container" method="post" id="product_form">
       <div class="form-group">
          {% csrf_token %}
-        <div class="form-row rowflex">
-            <div class="form-group col-md-6 inputflex">
-                <label for="id_variation_formset-0-ser_equipo">{{form.ser_equipo.label}}</label>
-                {{form.ser_equipo}}
+         <div class="table-responsive card mt-4">
+            <div class="card-header card-header-secondary">
+                <h2 class="card-title">Datos Generales</h2>
             </div>
-            <div class="form-group col-md-6 inputflex">
-                <label for="id_variation_formset-0-nom_equipo">{{form.nom_equipo.label}}</label>
-                {{form.nom_equipo}}
+            <div class="card-body colorcard">
+                 <div class="form-row rowflex">
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-ser_equipo" class="labelformulario">{{form.ser_equipo.label}}</label>
+                    {{form.ser_equipo}}
+                    </div>
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-nom_equipo" class="labelformulario">{{form.nom_equipo.label}}</label>
+                    {{form.nom_equipo}}
+                    </div>
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-est_equipo" class="labelformulario">{{form.est_equipo.label}}</label>
+                        {{form.est_equipo}}
+                    </div>
+                </div>
+                <div class="form-row rowflex">
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-fabr_equipo" class="labelformulario">{{form.fabr_equipo.label}}</label>
+                            {{form.fabr_equipo}}
+                    </div>
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-prov_equipo" class="labelformulario">{{form.prov_equipo.label}}</label><a href="{% url 'suministro_app:add_proveedor' %}" class="badge badge-little">Crear Proveedor</a>
+                        {{form.prov_equipo}}
+                    </div>
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-fec_adqui_equipo" class="labelformulario">{{form.fec_adqui_equipo.label}}</label>
+                        {{form.fec_adqui_equipo}}
+                    </div>
+                </div>
+                <div class="form-row rowflex">
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-fabr_equipo" class="labelformulario">{{form.potencia_equipo.label}}</label>
+                             {{form.potencia_equipo}}
+                    </div>
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-prov_equipo" class="labelformulario">{{form.vida_equipo.label}}</label>
+                        {{form.vida_equipo}}
+                    </div>
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-fec_adqui_equipo" class="labelformulario">{{form.gar_equipo.label}}</label>
+                        {{form.gar_equipo}}
+                    </div>
+                </div>
+                <div class="form-row rowflex">
+                    <div class="form-group col-md-4 inputflex">
+                        <label for="id_variation_formset-0-ubi_equipo" class="labelformulario">{{form.ubi_equipo.label}}</label>
+                        {{form.ubi_equipo}}
+                    </div>
+            
+                </div>
+
             </div>
         </div>
-        <div class="form-row rowflex">
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-fabr_equipo">{{form.fabr_equipo.label}}</label>
-                {{form.fabr_equipo}}
-            </div>
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-prov_equipo">{{form.prov_equipo.label}}</label>
-                {{form.prov_equipo}}
-            </div>
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-fec_adqui_equipo">{{form.fec_adqui_equipo.label}}</label>
-                {{form.fec_adqui_equipo}}
-            </div>
-        </div>
-        <div class="form-row rowflex">
-            <div class="form-group col-md-6 inputflex">
-                <label for="id_variation_formset-0-ubi_equipo">{{form.ubi_equipo.label}}</label>
-                {{form.ubi_equipo}}
-            </div>
-            <div class="form-group col-md-6 inputflex">
-                <label for="id_variation_formset-0-est_equipo">{{form.est_equipo.label}}</label>
-                {{form.est_equipo}}
-            </div>
-        </div>
-        <div class="form-row rowflex">
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-vida_equipo">{{form.vida_equipo.label}}</label>
-                {{form.vida_equipo}}
-            </div>
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-gar_equipo">{{form.gar_equipo.label}}</label>
-                {{form.gar_equipo}}
-            </div>
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-gar_equipo">{{form.potencia_equipo.label}}</label>
-                {{form.potencia_equipo}}
-            </div>
-        </div>
+
+
       </div>
       <div>
-
+        <br>
       <button type="submit" class="btn btn-primary">Guardar</button>
+      <a href="{% url 'suministro_app:equipos' %}"><button type="button" class="btn btn-secondary">Cancelar</button></a>
     </form>
 
   </div>

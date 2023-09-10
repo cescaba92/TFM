@@ -18,7 +18,7 @@ class ProductoForm(forms.ModelForm):
             'nom_producto': forms.TextInput(attrs={'class':'form-control'}),
             'canal_producto': forms.TextInput(attrs={'class':'form-control'}),
             'tip_producto': forms.Select(attrs={'class':'form-control'}),
-            'des_producto': forms.TextInput(attrs={'class':'form-control'}),
+            'des_producto': forms.Textarea(attrs={'class':'form-control'}),
         }
 
         labels = {

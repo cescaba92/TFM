@@ -59,6 +59,13 @@ class ProveedorUpdate(ProveedorInLine, UpdateView):
             'variants': SuministroFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
         }
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        proveedor_id = self.kwargs.get('pk')
+        proveedor = Proveedor.objects.get(id=proveedor_id)
+        form.proveedor = proveedor.nom_proveedor
+        return form
+
 def delete_proveedor(request,pk):
     try:
         proveedor = Proveedor.objects.get(id=pk)
@@ -112,6 +119,7 @@ class ProveedoresCreateView(ProveedorInLine, CreateView):
             return {
                 'variants': SuministroFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
             }
+
             
 class EquipoCreateView(CreateView):
     model = Equipos
@@ -139,6 +147,13 @@ class EquipoUpdate(UpdateView):
         messages.success(self.request, "The task was updated successfully.")
         form.save()
         return redirect('suministro_app:equipos')
+
+    def get_form(self, form_class=None):
+         form = super().get_form(form_class)
+         equipo_id = self.kwargs.get('pk')
+         equipo = Equipos.objects.get(id=equipo_id)
+         form.nombre = equipo.nom_equipo
+         return form
 
 def delete_equipo(request,pk):
     try:

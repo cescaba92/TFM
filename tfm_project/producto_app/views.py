@@ -52,35 +52,67 @@ class ProductosListView(ListView):
     template_name = 'producto_app/productos.html'
 
 
-class ProductosCreateView(ProductoInLine, CreateView):
+class ProductosCreateView(CreateView):
+    model = Producto
+    template_name='producto_app/nuevoproducto.html'
+    form_class = ProductoForm
+
+    def form_invalid(self, form):
+
+        return redirect('producto_app:productos')
+
+    def form_valid(self, form):
+        form.save()
+        return redirect('producto_app:productos')
+
+class ProductoUpdate(UpdateView):
+    model = Producto
+    template_name='producto_app/nuevoproducto.html'
+    form_class = ProductoForm
     
-    def get_context_data(self, **kwargs):
-        ctx = super(ProductosCreateView, self).get_context_data(**kwargs)
-        ctx['named_formsets'] = self.get_named_formsets()
-        return ctx
+    def form_valid(self, form):
+        messages.success(self.request, "The task was updated successfully.")
+        form.save()
+        return redirect('producto_app:productos')
 
-    def get_named_formsets(self):
-        if self.request.method == "GET":
-            return {
-                'variants': VariationFormSet(prefix='variants'),
-            }
-        else:
-            return {
-                'variants': VariationFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
-            }
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        producto_id = self.kwargs.get('pk')
+        producto = Producto.objects.get(id=producto_id)
+        form.producto = producto.nom_producto
+        return form
+
+# class ProductosCreateView(ProductoInLine, CreateView):
+    
+#     def get_context_data(self, **kwargs):
+#         ctx = super(ProductosCreateView, self).get_context_data(**kwargs)
+#         ctx['named_formsets'] = self.get_named_formsets()
+#         return ctx
+
+#     def get_named_formsets(self):
+#         if self.request.method == "GET":
+#             return {
+#                 'variants': VariationFormSet(prefix='variants'),
+#             }
+#         else:
+#             return {
+#                 'variants': VariationFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
+#             }
 
 
-class ProductoUpdate(ProductoInLine, UpdateView):
+# class ProductoUpdate(ProductoInLine, UpdateView):
 
-    def get_context_data(self, **kwargs):
-        ctx = super(ProductoUpdate, self).get_context_data(**kwargs)
-        ctx['named_formsets'] = self.get_named_formsets()
-        return ctx
+#     def get_context_data(self, **kwargs):
+#         ctx = super(ProductoUpdate, self).get_context_data(**kwargs)
+#         ctx['named_formsets'] = self.get_named_formsets()
+#         return ctx
 
-    def get_named_formsets(self):
-        return {
-            'variants': VariationFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
-        }
+#     def get_named_formsets(self):
+#         return {
+#             'variants': VariationFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
+#         }
+
+   
 
 def delete_producto(request,pk):
     try:

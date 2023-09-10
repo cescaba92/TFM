@@ -26,7 +26,7 @@ class EquipoForm(forms.ModelForm):
         labels = {
             'nom_equipo': 'Nombre',
             'fabr_equipo': 'Fabricante',
-            'ser_equipo': 'Codigod de Serie',
+            'ser_equipo': 'Cod. de Serie',
             'fec_adqui_equipo': 'Fecha Adquisición',
             'vida_equipo': 'Vida Útil (Años)',
             'est_equipo':'Estado',

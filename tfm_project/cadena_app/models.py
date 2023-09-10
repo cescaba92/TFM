@@ -178,15 +178,13 @@ class ActividadEmision_PlanCadena(models.Model):
 # ============================================================
 
 class MidpointEmision_PlanCadena(models.Model):
-    TIERRAO = "TO"
-    TIERRAR ="TX"
+    TIERRA = "TI"
     SUMINISTRO = "SU"
-    TRAMOS_NOX = "TN"
-    TRAMOS_OTR  = "TR"
+    TRAMOS  = "TR"
     ACTIVIDADES = "AC"
     CONSUMO_EQUIPO = "CE"
 
-    TIPO_MIDPOINT = [(TIERRAO,"Tierra Ocupacion"),(TIERRAR,"Tierra Relax"),(SUMINISTRO,"Suministro"),(TRAMOS_NOX,"Tramos NOX"),(TRAMOS_OTR,"Tramos Otros"),(ACTIVIDADES,"Actividades"),(CONSUMO_EQUIPO,"Consumo de Equipo")]
+    TIPO_MIDPOINT = [(TIERRA,"Tierra"),(SUMINISTRO,"Suministro"),(TRAMOS,"Tramos"),(ACTIVIDADES,"Actividades"),(CONSUMO_EQUIPO,"Consumo de Equipo")]
 
     cadena_asociada = models.ForeignKey(CadenaSuministro,on_delete=models.CASCADE,null=True)
     tipo_midpoint = models.CharField(
@@ -194,7 +192,7 @@ class MidpointEmision_PlanCadena(models.Model):
         choices=TIPO_MIDPOINT,
         default=SUMINISTRO,
     )
-    midpoints_emision_asociada = models.ForeignKey(Midpoint_emision,on_delete=models.CASCADE,null=True)
+    #midpoints_emision_asociada = models.ForeignKey(Midpoint_emision,on_delete=models.CASCADE,null=True)
     suministroEmision_asociado = models.ForeignKey(SuministroEmision_PlanCadena,on_delete=models.CASCADE,null=True)
     tramos_PlanCadena = models.ForeignKey(Tramos_PlanCadena,on_delete=models.CASCADE,null=True)
     actividademision_asociado = models.ForeignKey(ActividadEmision_PlanCadena,on_delete=models.CASCADE,null=True)
@@ -208,4 +206,28 @@ class MidpointTramos(models.Model):
     co2_tramo = models.FloatField()
     nox_tramo = models.FloatField()
     pm_tramo = models.FloatField()
+
+class Endpoint(models.Model):
+    nom_endpoint = models.CharField(max_length=264)
+
+    def __str__(self): return "%s" % (self.nom_endpoint)
+
+class CalculosEndpoint(models.Model):
+    nom_calculo = models.CharField(max_length=264)
+    endpoint = models.ForeignKey(Endpoint,on_delete=models.CASCADE)
+
+    def __str__(self): return "%s" % (self.nom_calculo)
+
+class MidpointEndpointFactor(models.Model):
+    midpoint = models.ForeignKey(Midpoint_emision,on_delete=models.CASCADE)
+    calculosEndpoint = models.ForeignKey(CalculosEndpoint,on_delete=models.CASCADE)
+    unidad = models.CharField(max_length=264)
+    factor = models.FloatField()
+
+class CadenaCalculosEndpoint(models.Model):
+    cadena_asociada = models.ForeignKey(CadenaSuministro,on_delete=models.CASCADE,null=True)
+    midpoint_endpoint = models.ForeignKey(Endpoint,on_delete=models.CASCADE,null=True)
+    valor = models.FloatField()
+
+
     
