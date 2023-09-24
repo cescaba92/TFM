@@ -31,11 +31,13 @@
     </ul>
     <ul class="nav nav-pills flex-column mb-auto">
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Elementos Base</a>  
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Planificación</a>  
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
           <li><a class="dropdown-item" href="{% url 'producto_app:productos' %}">Productos</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{% url 'suministro_app:proveedores' %}">Proveedores</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{% url 'suministro_app:suministros' %}">Suministros</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{% url 'suministro_app:equipos' %}">Equipos</a></li>
           <li><hr class="dropdown-divider"></li>

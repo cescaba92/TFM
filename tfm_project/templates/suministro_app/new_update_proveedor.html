@@ -1,0 +1,190 @@
+    {% extends "basic_app/base.html" %}
+    {% load static %}
+
+
+    {% block body_block %}
+    <link href="{% static 'css/productos.css' %}" rel="stylesheet" type="text/css">
+    <div class="">
+
+      <div class="p-5 text-left">
+        <div class="container py-5">
+                     {% if form.proveedor %}
+            <h1 class="text-body-emphasis">Gestión de Proveedores: {{form.proveedor}}</h1>
+            {% else %}
+            <h1 class="text-body-emphasis">Gestión de Proveedores: Nuevo </h1>
+            {% endif %}
+          <p class="col-lg-12">Ingresa los datos del proveedor y los suministros que proporciona</p>
+          <form enctype="multipart/form-data" class="container" method="post" id="product_form">
+          <div class="form-group">
+             {% csrf_token %}
+
+             <div class="table-responsive card mt-4">
+                <div class="card-header card-header-secondary">
+                    <h2 class="card-title">Datos Generales</h2>
+                </div>
+                <div class="card-body colorcard">
+                    <div class="form-row rowflex">
+                        <div class="form-group col-md-6 inputflex">
+                            <label for="id_variation_formset-0-nif_proveedor" class="labelformulario">{{form.nif_proveedor.label}}</label>
+                            {{form.nif_proveedor}}
+                        </div>
+                        <div class="form-group col-md-6 inputflex">
+                        <label for="id_variation_formset-0-nom_proveedor" class="labelformulario">{{form.nom_proveedor.label}}</label>
+                        {{form.nom_proveedor}}
+                        </div>
+
+                    </div>
+                
+                    <div class="form-row rowflex">
+                    <div class="form-group col-md-6 inputflex">
+                    <label for="id_variation_formset-0-tip_proveedor" class="labelformulario">{{form.tip_proveedor.label}}</label>
+                    {{form.tip_proveedor}}
+                    </div>
+                    <div class="form-group col-md-6 inputflex">
+                    <label for="id_variation_formset-0-dir_proveedor" class="labelformulario">{{form.dir_proveedor.label}}</label>
+                    {{form.dir_proveedor}}
+                    </div>
+                    </div>
+                </div>
+            </div>    
+            
+            <div class="table-responsive card mt-4">
+                <div class="card-header card-header-secondary">
+                    <h2 class="card-title">Contacto de Proveedor</h2>
+                </div>
+                <div class="card-body colorcard">
+                    <div class="form-row rowflex">
+                <div class="form-group col-md-4 inputflex">
+                    <label for="id_variation_formset-0-cont_nom_proveedor" class="labelformulario">{{form.cont_nom_proveedor.label}}</label>
+                    {{form.cont_nom_proveedor}}
+                </div>
+                <div class="form-group col-md-4 inputflex">
+                    <label for="id_variation_formset-0-cont_tel_proveedor" class="labelformulario">{{form.cont_tel_proveedor.label}}</label>
+                    {{form.cont_tel_proveedor}}
+                </div>
+                 <div class="form-group col-md-4 inputflex">
+                    <label for="id_variation_formset-0-cont_mai_proveedor" class="labelformulario">{{form.cont_mai_proveedor.label}}</label>
+                    {{form.cont_mai_proveedor}}
+                </div>
+            </div>
+            <div class="form-row rowflex">
+                <div class="form-group col-md-12 inputflex">
+                    <label for="id_variation_formset-0-com_proveedor" class="labelformulario">{{form.com_proveedor.label}}</label>
+                    {{form.com_proveedor}}
+                </div>
+            </div>
+                </div>    
+            </div>
+            
+          </div>
+          <div>
+
+            {% with named_formsets.variants as formset %}
+            {{ formset.management_form }}
+
+            <script type="text/html" id="variants-template"> 
+                <tr id="variants-__prefix__" class= hide_all>
+                    {% for fields in formset.empty_form.hidden_fields %}
+                        {{ fields }}
+                    {% endfor %}
+                
+                    {% for fields in formset.empty_form.visible_fields %}
+                        <td>{{fields}}</td>
+                    {% endfor %}
+                </tr>
+            </script>
+
+            <div class="table-responsive card mt-4">
+                <div class="card-header card-header-secondary">
+                    <h2 class="card-title">Suministros</h2>
+                    <p>Enumar los suministros que brinda el proveedor a la cadena de suministros</p>
+                </div>
+                <table class="table card-header">
+                    <thead class="text-secondary">
+                        <th style="width:20%;">SKU <span style="color: red;" class="required">*</span></th>
+                        <th style="width:40%;">Nombre <span style="color: red;" class="required">*</span></th>
+                        <th style="width:20%;">Tipo <span style="color: red;" class="required">*</span></th>
+                        <th style="width:20%;">Acción</th>
+                    </thead>
+                    <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
+                        <!-- formset non forms errors -->
+                        {% for error in formset.non_form_errors %}
+                            <span style="color: red">{{ error }}</span>
+                        {% endfor %}
+                        {% for formss in formset %}
+                            {{ formss.management_form }}
+                            <tr id="variants-{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                {{ formss.id }}
+                                {% for field in formss.visible_fields %}
+                                    <td>
+                                        {{field}}
+                                        {% for error in field.errors %}
+                                            <span style="color: red">{{ error }}</span>
+                                        {% endfor %}
+                                        
+                                        {% comment %} {{ field.DELETE }} {% endcomment %}
+                                    </td>
+                                {% endfor %}
+                                {% comment %} for delete {% endcomment %}
+                                {% if formss.instance.pk %}
+                                    <td>
+                                         
+                                            <a type="button" class="btn btn-danger" href="{% url 'producto_app:delete_variant' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+</svg></a>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </td>            
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <a href="#" id="add-variant-button" class="btn btn-secondary add-variants">Agregar</a> <!-- id="add-inlineformsetname-button" -->
+            </div>
+          </div>
+           {% endwith %}
+           <br>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+          <a href="{% url 'suministro_app:proveedores' %}"><button type="button" class="btn btn-secondary">Cancelar</button></a>
+        </form>
+
+      </div>
+    </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script>
+
+      $(document).ready(function() {
+        // when user clicks add more btn of variants
+          $('.add-variants').click(function(ev) {
+              ev.preventDefault();
+              var count = $('#item-variants').children().length;
+              var tmplMarkup = $('#variants-template').html();
+              var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+              $('#item-variants').append(compiledTmpl);
+      
+              // update form count
+              $('#id_variants-TOTAL_FORMS').attr('value', count+1);
+          });
+      });
+    </script>
+    {% endblock %}

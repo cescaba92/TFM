@@ -13,6 +13,7 @@ urlpatterns = [
     path('plan/suministros/emisiones/<int:pk>',views.Suministro_PlanCadenaUpdateView.as_view(),name='add_emisionplan'),
     path('plan/suministros/delete/<int:pk>',views.delete_CadenaSuministro,name='delete_cadenasuministro'),
     path('plan/suministros/delete-emision/<int:pk>',views.delete_SuministroEmision,name='delete_suministroEmision'),
+    path('plan/suministros/delete-tramo/<int:pk>',views.delete_SuministroViaje,name='delete_suministroTramo'),
     path('plan/tramos/delete/<int:pk>',views.delete_TramoPlan,name='delete_tramoplan'),
     path('plan/actividades/emisiones/<int:pk>',views.Actividades_PlanCadenaUpdateView.as_view(),name='add_emisionact'),
     path('plan/actividades/delete-emision/<int:pk>',views.delete_ActividadesEmision,name='delete_actividadEmision'),

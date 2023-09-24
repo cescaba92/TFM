@@ -1,7 +1,7 @@
 from django.shortcuts import (render, redirect)
-from cadena_app.forms import (CadenaNuevaForm,SuministroPlanFormSet,SuministroPlanCadenaForm,SuministroEmisionPlanFormSet,SuministroTramosPlanFormSet,Actividad_PlanCadenaForm,ActividadPlanFormSet,ActividadEmisionPlanCadenaForm,ActividadEmisionPlanFormSet)
+from cadena_app.forms import (CadenaNuevaForm,SuministroPlanFormSet,SuministroPlanCadenaForm,SuministroEmisionPlanFormSet,SuministroTramosPlanFormSet,Actividad_PlanCadenaForm,ActividadPlanFormSet,ActividadEmisionPlanCadenaForm,ActividadEmisionPlanFormSet,SuministroViajesPlanCadenaForm)
 from cadena_app.models import (CadenaSuministro, Suministro_PlanCadena,Sustancia_emision,Midpoint_emision,SuministroEmision_PlanCadena,Tramos_PlanCadena,Actividad_PlanCadena,ActividadEmision_PlanCadena,MidpointEmision_PlanCadena,Sustancia_Midpoint_emision,Categoria_emision,MidpointTramos,Categoria_emision)
-from cadena_app.models import (MidpointEndpointFactor, CadenaCalculosEndpoint,CalculosEndpoint,Endpoint)
+from cadena_app.models import (MidpointEndpointFactor, CadenaCalculosEndpoint,CalculosEndpoint,Endpoint,SuministroTramos_PlanCadena)
 from producto_app.models import (Producto, VariacionProducto)
 from suministro_app.models import (Suministro, Proveedor)
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
@@ -274,63 +274,47 @@ def calcularEmisionesTramos(tramos_PlanCadena):
                 midpointEmision.save()
 
     calcularEndpoints(cadena) 
-    # #Registro CO2
-    # codigo_c02 = 35
-    # emision_midpoints1 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_c02)
 
-    # for emision_midpoint in emision_midpoints1:
-    #     midpoints_emision_asociada = emision_midpoint.midpoint_emision
-        
-    #     points = emision_midpoint.valor_emision * co2_tramo_point
-    #     #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
-        
-    #     try:
-    #         midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint=tipo_midpoint)
-    #         midpoint.points_midpoint = points
-    #         midpoint.save()
-
-    #     except MidpointEmision_PlanCadena.DoesNotExist:
-    #         midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
-    #         midpoint.save()
-
-    # #Registro NOX
-    # codigo_nox = 31
-    # emision_midpoints2 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_nox)
-
-    # for emision_midpoint in emision_midpoints2:
-    #     midpoints_emision_asociada = emision_midpoint.midpoint_emision
-    #     tramos_PlanCadena = tramos_PlanCadena
-    #     points = emision_midpoint.valor_emision * nox_tramo_point
-    #     #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
-        
-    #     try:
-    #         midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint="TN")
-    #         midpoint.points_midpoint = points
-    #         midpoint.save()
-
-    #     except MidpointEmision_PlanCadena.DoesNotExist:
-    #         midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint="TN",midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
-    #         midpoint.save()
+def calcularEmisionesTramosSuministro(suministroTramos):
+    print(f"Mi SuministroTramos_PlanCadena es {suministroTramos.id}")
+    km_recorridos = suministroTramos.km_tramo
     
-    # #Registro PM
-    # codigo_pm = 36
+    try:
+        midpointTramos = MidpointTramos.objects.get(energia_transporte=suministroTramos.energia_tramo,Tipo_transporte=suministroTramos.tipo_tramo)
+        co2_tramo_point = midpointTramos.co2_tramo*km_recorridos
+        nox_tramo_point = midpointTramos.nox_tramo*km_recorridos
+        pm_tramo_point = midpointTramos.pm_tramo*km_recorridos
 
-    # emision_midpoints3 = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=codigo_pm)
+    except MidpointTramos.DoesNotExist:
+        co2_tramo_point = 0.0
+        nox_tramo_point = 0.0
+        pm_tramo_point = 0.0
 
-    # for emision_midpoint in emision_midpoints3:
-    #     midpoints_emision_asociada = emision_midpoint.midpoint_emision
-    #     tramos_PlanCadena = tramos_PlanCadena
-    #     points = emision_midpoint.valor_emision * pm_tramo_point
-    #     #print(f"Mi suministroEmision_asociado es {suministroEmision.id}")
-        
-    #     try:
-    #         midpoint = MidpointEmision_PlanCadena.objects.get(tramos_PlanCadena=tramos_PlanCadena,midpoints_emision_asociada=midpoints_emision_asociada,tipo_midpoint=tipo_midpoint)
-    #         midpoint.points_midpoint = points
-    #         midpoint.save()
+    puntos_a_revisar= [(settings.CODIGO_C02,co2_tramo_point),(settings.CODIGO_NOX,nox_tramo_point),(settings.CODIGO_PM,pm_tramo_point)]
 
-    #     except MidpointEmision_PlanCadena.DoesNotExist:
-    #         midpoint = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points,tramos_PlanCadena=tramos_PlanCadena)
-    #         midpoint.save()
+    print("Genero duplas")
+    cadena = suministroTramos.sumcadena_asociado.cadena_asociada
+    #tramo_PlanCadena = tramos_PlanCadena
+    tipo_midpoint = "TS"
+
+
+    for dupla in puntos_a_revisar:
+        midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=dupla[0])
+        print("entro a la dupla")
+        for midpoint in midpoints:
+            points = dupla[1]*midpoint.valor_emision
+            print(f"esta aqui: {cadena}")
+            try:
+                midpointEmision = MidpointEmision_PlanCadena.objects.get(cadena_asociada=cadena,sustancia_midpoint_asociado=midpoint,tipo_midpoint=tipo_midpoint,suministroTramos_PlanCadena=suministroTramos)
+                midpointEmision.points_midpoint = points
+                midpointEmision.save()
+
+            except MidpointEmision_PlanCadena.DoesNotExist:
+                midpointEmision = MidpointEmision_PlanCadena(cadena_asociada=cadena,sustancia_midpoint_asociado=midpoint,tipo_midpoint=tipo_midpoint,suministroTramos_PlanCadena=suministroTramos,points_midpoint=points)
+                midpointEmision.save()
+
+    calcularEndpoints(cadena) 
+
 
 # ============================================================
 # Cadena de Suministro Principal
@@ -512,6 +496,28 @@ class CadenaSuministroUpdateView(CadenaSuministroInLine, UpdateView):
             cadena_id = self.kwargs.get('pk')
             cadena_name = CadenaSuministro.objects.get(id=cadena_id)
             form.productonombre = cadena_name.prod_asociado.nom_producto
+            form.existe = True
+
+            try:
+                endpoint = Endpoint.objects.get(id=1)
+                salud_humana = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
+                endpoint = Endpoint.objects.get(id=2)
+                eco_terrestre = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
+                endpoint = Endpoint.objects.get(id=3)
+                eco_aguadulce = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
+                endpoint = Endpoint.objects.get(id=4)
+                eco_marino = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
+                endpoint = Endpoint.objects.get(id=5)
+                escase_recursos = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
+
+                form.salud_humana = "{0:.3E}".format(salud_humana.valor)
+                form.eco_terrestre = "{0:.3E}".format(eco_terrestre.valor)
+                form.eco_aguadulce = "{0:.3E}".format(eco_aguadulce.valor)
+                form.eco_marino = "{0:.3E}".format(eco_marino.valor)
+                form.escase_recursos = "{0:.3E}".format(escase_recursos.valor)
+
+            except CadenaCalculosEndpoint.DoesNotExist:
+                form.existe = False
 
 
             # for form_in_formset in self.get_named_formsets()['variants'].forms:
@@ -742,6 +748,16 @@ class Suministro_PlanCadenaInLine():
             calcularemisionesSuministro(variant)
             #print(f"Mi suministroEmision_asociado es {variant}")
 
+    def formset_tramos_valid(self,formset):
+        print("Entro aqui - Tramos")
+        tramos = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for tramo in tramos:
+            tramo.sumcadena_asociado = self.object
+            tramo.save()
+            calcularEmisionesTramosSuministro(tramo)
+
 class Suministro_PlanCadenaUpdateView(Suministro_PlanCadenaInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -754,6 +770,7 @@ class Suministro_PlanCadenaUpdateView(Suministro_PlanCadenaInLine, UpdateView):
 
         formsets = {
         'variants': SuministroEmisionPlanFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
+        'tramos': SuministroViajesPlanCadenaForm(self.request.POST or None,self.request.FILES or None,instance=self.object,prefix='tramos')
         }
 
         for formset_form in formsets['variants'].forms:
@@ -816,7 +833,20 @@ def delete_SuministroEmision(request, pk):
             )
     return redirect('cadena_app:add_emisionplan', pk=variant.sumcadena_asociado.id)
 
+def delete_SuministroViaje(request,pk):
+    try:
+        variant = SuministroTramos_PlanCadena.objects.get(id=pk)
+    except SuministroTramos_PlanCadena.DoesNotExist:
+        messages.success(
+            request, 'Object Does not exit'
+            )
+        return redirect('cadena_app:add_emisionplan', pk=variant.sumcadena_asociado.id)
 
+    variant.delete()
+    messages.success(
+            request, 'Variant deleted successfully'
+            )
+    return redirect('cadena_app:add_emisionplan', pk=variant.sumcadena_asociado.id)
 
 # ============================================================
 # Tramos Plan

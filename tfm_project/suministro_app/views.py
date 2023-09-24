@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from suministro_app.forms import (ProveedorForm, SuministroForm, SuministroFormSet,EquipoForm)
+from suministro_app.forms import (ProveedorForm, SuministroForm, SuministroFormSet,EquipoForm,SuministroForm)
 from suministro_app.models import (Proveedor, Suministro, Equipos)
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
 from django.forms.models import inlineformset_factory
@@ -13,7 +13,7 @@ from django.urls import reverse
 class ProveedorInLine():
     form_class = ProveedorForm
     model = Proveedor
-    template_name = 'suministro_app/new_update_suministro.html'
+    template_name = 'suministro_app/new_update_proveedor.html'
 
     def form_valid(self,form):
         named_formsets = self.get_named_formsets()
@@ -120,7 +120,63 @@ class ProveedoresCreateView(ProveedorInLine, CreateView):
                 'variants': SuministroFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
             }
 
-            
+# ============================================================
+# Suministro
+# ============================================================
+class SuministroListView(ListView):
+    model = Suministro
+    template_name = 'suministro_app/suministros.html'
+
+class SuministroCreateView(CreateView):
+    model = Suministro
+    template_name='suministro_app/new_update_suministro.html'
+    form_class = SuministroForm
+
+    def form_invalid(self, form):
+
+         return redirect('suministro_app:suministros')
+
+    def form_valid(self, form):
+        form.save()
+        return redirect('suministro_app:suministros')
+
+class SuministroUpdate(UpdateView):
+    model = Suministro
+    template_name='suministro_app/new_update_suministro.html'
+    form_class = SuministroForm
+    
+    def form_valid(self, form):
+        messages.success(self.request, "The task was updated successfully.")
+        form.save()
+        return redirect('suministro_app:suministros')
+
+    def get_form(self, form_class=None):
+         form = super().get_form(form_class)
+         suministro_id = self.kwargs.get('pk')
+         suministro = Suministro.objects.get(id=suministro_id)
+         form.nombre = suministro.nom_suministro
+         return form
+
+def delete_suministro(request,pk):
+    try:
+        suministro = Suministro.objects.get(id=pk)
+    except Suministro.DoesNotExist:
+        messages.success(
+            request, 'Object Does not exit'
+            )
+        return redirect('suministro_app:suministros')
+
+    suministro.delete()
+
+    messages.success(
+            request, 'Variant deleted successfully'
+            )
+    return redirect('suministro_app:suministros')
+
+# ============================================================
+# Equipos
+# ============================================================
+
 class EquipoCreateView(CreateView):
     model = Equipos
     template_name='suministro_app/new_update_equipos.html'

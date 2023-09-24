@@ -32,6 +32,17 @@ class CadenaSuministro(models.Model):
     tierra_ocupada = models.ForeignKey(MidpointTierra,on_delete=models.CASCADE)
     tierra_m2 = models.FloatField()
 
+class Energia_transporte(models.Model):
+    nom_energiatransporte = models.CharField(max_length=264);
+
+    def __str__(self): return "%s" % (self.nom_energiatransporte)
+
+class Tipo_transporte(models.Model):
+    nom_transporte = models.CharField(max_length=264);
+
+    def __str__(self): return "%s" % (self.nom_transporte)
+
+
 # ============================================================
 # Suministros Cadena de Valor Plan
 # ============================================================
@@ -114,19 +125,18 @@ class SuministroEmision_PlanCadena(models.Model):
     cantidad_sustancia = models.FloatField()
 
 
+class SuministroTramos_PlanCadena(models.Model):
+    sumcadena_asociado = models.ForeignKey(Suministro_PlanCadena,on_delete=models.CASCADE)
+    tipo_tramo = models.ForeignKey(Tipo_transporte,on_delete=models.CASCADE,null=True)
+    energia_tramo = models.ForeignKey(Energia_transporte,on_delete=models.CASCADE,null=True)
+    descripcion_tramo = models.CharField(max_length=264,null=True)
+    km_tramo = models.FloatField()
+
+
 # ============================================================
 # Tramos Cadena de Valor Plan
 # ============================================================
 
-class Energia_transporte(models.Model):
-    nom_energiatransporte = models.CharField(max_length=264);
-
-    def __str__(self): return "%s" % (self.nom_energiatransporte)
-
-class Tipo_transporte(models.Model):
-    nom_transporte = models.CharField(max_length=264);
-
-    def __str__(self): return "%s" % (self.nom_transporte)
 
 class Tramos_PlanCadena(models.Model):
 
@@ -137,11 +147,11 @@ class Tramos_PlanCadena(models.Model):
     TIPO_TRANSPORTE = [(INTERNO,"Interno"),(EXTERNO,"Suministro"),(ENVIO,"Envio")]
  
     cadena_asociada = models.ForeignKey(CadenaSuministro,on_delete=models.CASCADE,null=True)
-    tipo_transporte = models.CharField(
-        max_length=2,
-        choices=TIPO_TRANSPORTE,
-        default=EXTERNO,
-    )    
+    # tipo_transporte = models.CharField(
+    #     max_length=2,
+    #     choices=TIPO_TRANSPORTE,
+    #     default=EXTERNO,
+    # )    
     tipo_tramoexterno = models.ForeignKey(Tipo_transporte,on_delete=models.CASCADE,null=True)
     energia_tramoexterno = models.ForeignKey(Energia_transporte,on_delete=models.CASCADE,null=True)
     descripcion_tramoexterno = models.CharField(max_length=264,null=True)
@@ -181,10 +191,11 @@ class MidpointEmision_PlanCadena(models.Model):
     TIERRA = "TI"
     SUMINISTRO = "SU"
     TRAMOS  = "TR"
+    TRAMO_SUMINISTRO  = "TS"
     ACTIVIDADES = "AC"
     CONSUMO_EQUIPO = "CE"
 
-    TIPO_MIDPOINT = [(TIERRA,"Tierra"),(SUMINISTRO,"Suministro"),(TRAMOS,"Tramos"),(ACTIVIDADES,"Actividades"),(CONSUMO_EQUIPO,"Consumo de Equipo")]
+    TIPO_MIDPOINT = [(TRAMO_SUMINISTRO,"Tramo Sumininstro"),(TIERRA,"Tierra"),(SUMINISTRO,"Suministro"),(TRAMOS,"Tramos"),(ACTIVIDADES,"Actividades"),(CONSUMO_EQUIPO,"Consumo de Equipo")]
 
     cadena_asociada = models.ForeignKey(CadenaSuministro,on_delete=models.CASCADE,null=True)
     tipo_midpoint = models.CharField(
@@ -194,6 +205,7 @@ class MidpointEmision_PlanCadena(models.Model):
     )
     #midpoints_emision_asociada = models.ForeignKey(Midpoint_emision,on_delete=models.CASCADE,null=True)
     suministroEmision_asociado = models.ForeignKey(SuministroEmision_PlanCadena,on_delete=models.CASCADE,null=True)
+    suministroTramos_PlanCadena = models.ForeignKey(SuministroTramos_PlanCadena,on_delete=models.CASCADE,null=True)
     tramos_PlanCadena = models.ForeignKey(Tramos_PlanCadena,on_delete=models.CASCADE,null=True)
     actividademision_asociado = models.ForeignKey(ActividadEmision_PlanCadena,on_delete=models.CASCADE,null=True)
     sustancia_midpoint_asociado = models.ForeignKey(Sustancia_Midpoint_emision,on_delete=models.CASCADE,null=True)

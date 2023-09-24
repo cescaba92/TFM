@@ -15,4 +15,8 @@ urlpatterns = [
    path('equipos/nuevo/',views.EquipoCreateView.as_view(),name='add_equipo'),
    path('equipos/update/<int:pk>',views.EquipoUpdate.as_view(),name='update_equipo'),
    path('equipos/delete/<int:pk>',views.delete_equipo,name='delete_equipo'),
+   path('suministros/',views.SuministroListView.as_view(),name='suministros'),
+   path('suministros/nuevo/',views.SuministroCreateView.as_view(),name='add_suministros'),
+   path('suministros/update/<int:pk>',views.SuministroUpdate.as_view(),name='update_suministro'),
+   path('suministros/delete/<int:pk>',views.delete_suministro,name='delete_suministro'),
 ]

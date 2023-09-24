@@ -51,3 +51,24 @@
     font-size: 11px;
     margin-left:5px;
 }
+
+.container-estadistica {
+    display: flex;
+    justify-content: space-between;
+}
+
+.kpi {
+    width: 18%; /* Ajusta el ancho según tus necesidades */
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.kpi-label {
+    font-weight: bold;
+    font-size:12px;
+}
+
+.kpi-number {
+    font-size: 24px; /* Ajusta el tamaño de fuente según tus necesidades */
+}

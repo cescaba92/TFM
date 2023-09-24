@@ -7,339 +7,349 @@
 
 
 <div class="">
-
-  <div class="p-5 text-left" style="padding:0px;">
-    <div class="container py-5" style="padding:0px;">
-      <h1 class="text-body-emphasis">Cadena de Suministro para {{form.productonombre}}</h1>
-      <p class="col-lg-12">Asociar a la cadena de Producción los suministros requeridos y su impacto heredado </p>
-      <form enctype="multipart/form-data" class="container" method="post" id="product_form">
-     
-
-     <h2 class="text-body-emphasis">Información General de Producción</h2>
-      <div class="form-group">
-         {% csrf_token %}
-        <div class="form-row rowflex">
-            <div class="form-group col-md-6 inputflex" style="display:none;">
-                <label for="id_variation_formset-0-ser_equipo">{{form.prod_asociado.label}}</label>
-                {{form.prod_asociado}}
+    <div class="p-5 text-left" style="padding:0px;">
+        <div class="container py-5" style="padding:0px;">
+            <h1 class="text-body-emphasis">Cadena de Suministro para {{form.productonombre}}</h1>
+            <p class="col-lg-12">Asociar a la cadena de Producción los suministros requeridos y su impacto heredado </p>
+            <form enctype="multipart/form-data" class="container" method="post" id="product_form">
+                 {% if form.existe %}
+            <div class="table-responsive card mt-4">
+                <div class="card-header card-header-secondary">
+                    <h4 class="card-title">Evaluación Impacto Ambiental</h4>
+                </div>
+                <div class="card-body colorcard">
+                    <div class="container-estadistica">
+                        <div class="kpi">
+                            <div class="kpi-label">Salud Humana</div>
+                            <div class="kpi-number">{{form.salud_humana}}</div>
+                            <div class="kpi-label">Perdida de años de vida-discapacidad</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Terrestres</div>
+                            <div class="kpi-number">{{form.eco_terrestre}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Agua Dulce</div>
+                            <div class="kpi-number">{{form.eco_aguadulce}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Marino</div>
+                            <div class="kpi-number">{{form.eco_marino}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Escases de Recursos</div>
+                            <div class="kpi-number">USD {{form.escase_recursos}}</div>
+                            <div class="kpi-label">Coste Excedente</div>
+                        </div>
+                    </div>
+                </div> 
             </div>
-        </div>
-        <div class="form-row rowflex">
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-nom_equipo">{{form.fuente_energia.label}}</label>
-                {{form.fuente_energia}}
-            </div>
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-fabr_equipo">{{form.tierra_ocupada.label}}</label>
-                {{form.tierra_ocupada}}
-            </div>
-            <div class="form-group col-md-4 inputflex">
-                <label for="id_variation_formset-0-prov_equipo">{{form.tierra_m2.label}}</label>
-                {{form.tierra_m2}}
-            </div>
-        </div>
+            {% endif %}  
+                {% csrf_token %}
+                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Datos Generales</h2>
+                    </div>
+                    <div class="card-body colorcard">
+                        <div class="form-row rowflex">
+                            <div class="form-group col-md-6 inputflex" style="display:none;">
+                                <label for="id_variation_formset-0-ser_equipo">{{form.prod_asociado.label}}</label>
+                                {{form.prod_asociado}}
+                            </div>
+                        </div>
+                        <div class="form-row rowflex">
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-nom_equipo">{{form.fuente_energia.label}}</label>
+                                {{form.fuente_energia}}
+                            </div>
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-fabr_equipo">{{form.tierra_ocupada.label}}</label>
+                                {{form.tierra_ocupada}}
+                            </div>
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-prov_equipo">{{form.tierra_m2.label}}</label>
+                                {{form.tierra_m2}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% with named_formsets.variants as formset %}
+                {{ formset.management_form }}
+                <script type="text/html"  id="variants-template"> 
+                    <tr id="variants-__prefix__" data-row="__prefix__" dataclass= hide_all>
+                        {% for fields in formset.empty_form.hidden_fields %}
+                            {{ fields }}
+                        {% endfor %}
+                    
+                        {% for fields in formset.empty_form.visible_fields %}
+                            <td>{{fields}}</td>
+                        {% endfor %}
+                    </tr>
+                </script>
 
-
-      </div>
-
-      <div>
-
-        {% with named_formsets.variants as formset %}
-        {{ formset.management_form }}
-
-        <script type="text/html"  id="variants-template"> 
-            <tr id="variants-__prefix__" data-row="__prefix__" dataclass= hide_all>
-                {% for fields in formset.empty_form.hidden_fields %}
-                    {{ fields }}
-                {% endfor %}
-            
-                {% for fields in formset.empty_form.visible_fields %}
-                    <td>{{fields}}</td>
-                {% endfor %}
-            </tr>
-        </script>
-
-        <div class="table-responsive card mt-4">
-            <div class="card-header card-header-secondary">
-                <h2 class="card-title">Suministros</h2>
-                <p>Enumar los suministros que brinda el proveedor a la cadena de suministros</p>
-            </div>
-            <table class="table card-header">
-                <thead class="text-secondary">
-                    <th style="width:30%;">Proveedor <span style="color: red;" class="required">*</span></th>
-                    <th style="width:30%;">Suministro <span style="color: red;" class="required">*</span></th>
-                    <th style="width:12%;">Unidad<span style="color: red;" class="required">*</span></th>
-                    <th style="width:12%;">Cantidad<span style="color: red;" class="required">*</span></th>
-                    <th style="width:16%;">Accion</th>
-                </thead>
-                <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
-                    <!-- formset non forms errors -->
-                    {% for error in formset.non_form_errors %}
-                        <span style="color: red">{{ error }}</span>
-                    {% endfor %}
-                    {% for formss in formset %}
-                        {{ formss.management_form }}
-                        <tr id="variants-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
-                            {{ formss.id }}
-                            <td>
-                                {{ formss.proveedor_suministro }}
-                            </td>
-                            <td>
-                                {{ formss.suministro_asociado }}
-                            </td>
-                            <td>
-                                {{ formss.unidad_suministro }}
-                            </td>
-                            <td>
-                                {{ formss.cantidad_suministro }}
-                            </td>
-                         
-                            {% comment %} for delete {% endcomment %}
-                            
-                            {% if formss.instance.pk %}
-                                <td>
-                                          <a type="button" class="btn btn-primary" href="{% url 'cadena_app:add_emisionplan' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-</svg></a>
-                                     <a type="button" class="btn btn-danger" href="{% url 'cadena_app:delete_cadenasuministro' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
-</svg></a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
+                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Suministros</h2>
+                        <p>Enumar los suministros que brinda el proveedor a la cadena de suministros</p>
+                    </div>
+                    <table class="table card-header">
+                        <thead class="text-secondary">
+                            <th style="width:30%;">Proveedor <span style="color: red;" class="required">*</span><a href="{% url 'suministro_app:add_proveedor' %}" target="_blank" class="badge badge-little">Crear Proveedor</a></th>
+                            <th style="width:30%;">Suministro <span style="color: red;" class="required">*</span><a href="{% url 'suministro_app:add_suministros' %}" target="_blank" class="badge badge-little">Crear Suministro</a></th>
+                            <th style="width:12%;">Unidad<span style="color: red;" class="required">*</span></th>
+                            <th style="width:12%;">Cantidad<span style="color: red;" class="required">*</span></th>
+                            <th style="width:16%;">Accion</th>
+                        </thead>
+                        <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
+                            <!-- formset non forms errors -->
+                            {% for error in formset.non_form_errors %}
+                                <span style="color: red">{{ error }}</span>
+                            {% endfor %}
+                            {% for formss in formset %}
+                                {{ formss.management_form }}
+                                <tr id="variants-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                    {{ formss.id }}
+                                    <td>
+                                        {{ formss.proveedor_suministro }}
+                                    </td>
+                                    <td>
+                                        {{ formss.suministro_asociado }}
+                                    </td>
+                                    <td>
+                                        {{ formss.unidad_suministro }}
+                                    </td>
+                                    <td>
+                                        {{ formss.cantidad_suministro }}
+                                    </td>
+                                 
+                                    {% comment %} for delete {% endcomment %}
+                                    
+                                    {% if formss.instance.pk %}
+                                        <td><a type="button" style="margin-right:5px;" class="btn btn-primary" href="{% url 'cadena_app:add_emisionplan' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg></a><a type="button" class="btn btn-danger" href="{% url 'cadena_app:delete_cadenasuministro' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/></svg></a>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                                </div>
                                             </div>
-                                            <div class="modal-footer">
-                                                <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                                        </td> 
+
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="#" id="add-variant-button" class="btn btn-secondary add-variants">Agregar</a> 
+                </div>
+        
+                {% endwith %}
+
+                {% with named_formsets.tramos as formset %}
+                {{ formset.management_form }}
+
+                <script type="text/html"  id="tramos-template"> 
+                    <tr id="tramos-__prefix__" data-row="__prefix__" dataclass= hide_all>
+                        {% for fields in formset.empty_form.hidden_fields %}
+                            {{ fields }}
+                        {% endfor %}
+                                    <td>
+                                        {{ formset.empty_form.tipo_transporte}}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.tipo_tramoexterno }}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.energia_tramoexterno }}
+                                    </td>
+                                      <td>
+                                        {{ formset.empty_form.descripcion_tramoexterno }}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.km_tramoexterno }}
+                                    </td>     
+                    </tr>
+                </script>
+
+                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Envio Estándar</h2>
+                        <p>Enumar los tramos de transporte Estándar para el envio del Producto</p>
+                    </div>
+                    <table class="table card-header">
+                        <thead class="text-secondary">
+                            <th style="width:25%;">Modo Transporte <span style="color: red;" class="required">*</span></th>
+                            <th style="width:25%;">Energia Utilizada <span style="color: red;" class="required">*</span></th>
+                            <th style="width:30%;">Descripción <span style="color: red;" class="required">*</span></th>
+                            <th style="width:10%;">Kms<span style="color: red;" class="required">*</span></th>
+                            <th style="width:10%;">Accion</th>
+                        </thead>
+                        <tbody id="item-tramos">  <!-- id="item-inlineformsetname" -->
+                            <!-- formset non forms errors -->
+                            {% for error in formset.non_form_errors %}
+                                <span style="color: red">{{ error }}</span>
+                            {% endfor %}
+                            {% for formss in formset %}
+                                {{ formss.management_form }}
+                                <tr id="tramos-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                    {{ formss.id }}
+                                    <td>
+                                        {{ formss.tipo_tramoexterno }}
+                                    </td>
+                                   <td>
+                                        {{ formss.energia_tramoexterno }}
+                                    </td>
+                                    <td>
+                                    {{ formss.descripcion_tramoexterno }}
+                                    </td>
+                                    <td>
+                                        {{ formss.km_tramoexterno }}
+                                    </td>
+                                 
+                                    {% comment %} for delete {% endcomment %}
+                                    {% if formss.instance.pk %}
+                                        <td>
+
+                                             <a type="button" class="btn btn-danger" href="{% url 'cadena_app:delete_tramoplan' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/></svg></a>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        </div>
-                                    </div>
+                                        </td> 
 
-                                </td> 
-
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <a href="#" id="add-variant-button" class="btn btn-secondary add-variants">Add More</a> <!-- id="add-inlineformsetname-button" -->
-        </div>
-      </div>
-       {% endwith %}
-
- {% with named_formsets.tramos as formset %}
-        {{ formset.management_form }}
-
-        <script type="text/html"  id="tramos-template"> 
-            <tr id="tramos-__prefix__" data-row="__prefix__" dataclass= hide_all>
-                {% for fields in formset.empty_form.hidden_fields %}
-                    {{ fields }}
-                {% endfor %}
-                            <td>
-                                {{ formset.empty_form.tipo_transporte}}
-                            </td>
-                            <td>
-                                {{ formset.empty_form.tipo_tramoexterno }}
-                            </td>
-                            <td>
-                                {{ formset.empty_form.energia_tramoexterno }}
-                            </td>
-                              <td>
-                                {{ formset.empty_form.descripcion_tramoexterno }}
-                            </td>
-                            <td>
-                                {{ formset.empty_form.km_tramoexterno }}
-                            </td>
-                            
-            </tr>
-        </script>
-
-        <div class="table-responsive card mt-4">
-            <div class="card-header card-header-secondary">
-                <h2 class="card-title">Tramos de Transporte</h2>
-                <p>Enumar los tramos de transporte requeridos para la cadena de suministro</p>
-            </div>
-            <table class="table card-header">
-                <thead class="text-secondary">
-                    <th style="width:15%;">Tipo Transporte <span style="color: red;" class="required">*</span></th>
-                    <th style="width:20%;">Modo Transporte <span style="color: red;" class="required">*</span></th>
-                    <th style="width:20%;">Energia Utilizada <span style="color: red;" class="required">*</span></th>
-                    <th style="width:25%;">Descripción <span style="color: red;" class="required">*</span></th>
-                    <th style="width:10%;">Kms<span style="color: red;" class="required">*</span></th>
-                    <th style="width:10%;">Accion</th>
-                </thead>
-                <tbody id="item-tramos">  <!-- id="item-inlineformsetname" -->
-                    <!-- formset non forms errors -->
-                    {% for error in formset.non_form_errors %}
-                        <span style="color: red">{{ error }}</span>
-                    {% endfor %}
-                    {% for formss in formset %}
-                        {{ formss.management_form }}
-                        <tr id="tramos-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
-                            {{ formss.id }}
-                            <td>
-                                {{ formss.tipo_transporte }}
-                            </td>
-                            <td>
-                                {{ formss.tipo_tramoexterno }}
-                            </td>
-                           <td>
-                                {{ formss.energia_tramoexterno }}
-                            </td>
-                            <td>
-                            {{ formss.descripcion_tramoexterno }}
-                            </td>
-                            <td>
-                                {{ formss.km_tramoexterno }}
-                            </td>
-                         
-                            {% comment %} for delete {% endcomment %}
-                            {% if formss.instance.pk %}
-                                <td>
-
-                                     <a type="button" class="btn btn-danger" href="{% url 'cadena_app:delete_tramoplan' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
-</svg></a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
-
-                                </td> 
-
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <a href="#" id="add-tramos-button" class="btn btn-secondary add-tramo">Add More</a> <!-- id="add-inlineformsetname-button" -->
-        </div>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="#" id="add-tramos-button" class="btn btn-secondary add-tramo">Agregar</a>
+                </div>
       
-       {% endwith %}
-        {% with named_formsets.actividades as formset %}
-        {{ formset.management_form }}
+                {% endwith %}
+                {% with named_formsets.actividades as formset %}
+                {{ formset.management_form }}
 
-        <script type="text/html"  id="actividades-template"> 
-            <tr id="actividades-__prefix__" data-row="__prefix__" dataclass= hide_all>
-                {% for fields in formset.empty_form.hidden_fields %}
-                    {{ fields }}
-                {% endfor %}
-                            <td>
-                                {{ formset.empty_form.tipo_actividad}}
-                            </td>
-                            <td>
-                                {{ formset.empty_form.nom_actividad}}
-                            </td>
-                            <td>
-                                {{ formset.empty_form.equipo_asociado }}
-                            </td>
-                            <td>
-                                {{ formset.empty_form.tiempo_equipo_asociado }}
-                            </td>
-            </tr>
-        </script>
+                <script type="text/html"  id="actividades-template"> 
+                    <tr id="actividades-__prefix__" data-row="__prefix__" dataclass= hide_all>
+                        {% for fields in formset.empty_form.hidden_fields %}
+                            {{ fields }}
+                        {% endfor %}
+                                    <td>
+                                        {{ formset.empty_form.tipo_actividad}}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.nom_actividad}}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.equipo_asociado }}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.tiempo_equipo_asociado }}
+                                    </td>
+                    </tr>
+                </script>
 
-        <div class="table-responsive card mt-4">
-            <div class="card-header card-header-secondary">
-                <h2 class="card-title">Actividades</h2>
-                <p>Enumar las actividades que se realizan en la cadena de producción (actividades productivas o de envio) y las emisiones planificadas </p>
-            </div>
-            <table class="table card-header">
-                <thead class="text-secondary">
-                    <th style="width:12%;">Tipo Actividad <span style="color: red;" class="required">*</span></th>
-                    <th style="width:25%;">Descripción<span style="color: red;" class="required">*</span></th>
-                    <th style="width:18%;">Equipo Utilizado <span style="color: red;" class="required">*</span></th>
-                    <th style="width:15%;">Tiempo Utilizada (Hrs)<span style="color: red;" class="required">*</span></th>
-                    <th style="width:10%;">Accion</th>
-                </thead>
-                <tbody id="item-actividades">  <!-- id="item-inlineformsetname" -->
-                    <!-- formset non forms errors -->
-                    {% for error in formset.non_form_errors %}
-                        <span style="color: red">{{ error }}</span>
-                    {% endfor %}
-                    {% for formss in formset %}
-                        {{ formss.management_form }}
-                        <tr id="actividades-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
-                            {{ formss.id }}
-                            <td>
-                                {{ formss.tipo_actividad }}
-                            </td>
-                            <td>
-                                {{ formss.nom_actividad }}
-                            </td>
-                            <td>
-                                {{ formss.equipo_asociado }}
-                            </td>
-                           <td>
-                                {{ formss.tiempo_equipo_asociado }}
-                            </td>
-                        
-                            {% comment %} for delete {% endcomment %}
-                            {% if formss.instance.pk %}
-                                <td>
- <a type="button" class="btn btn-primary" href="{% url 'cadena_app:add_emisionact' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-</svg></a>
-                                     <a type="button" class="btn btn-danger" href="{% url 'cadena_app:delete_actividadcadena' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
-</svg></a>
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
+                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Actividades</h2>
+                        <p>Enumar las actividades que se realizan en la cadena de producción (actividades productivas o de envio) y las emisiones planificadas </p>
+                    </div>
+                    <table class="table card-header">
+                        <thead class="text-secondary">
+                            <th style="width:12%;">Tipo Actividad <span style="color: red;" class="required">*</span></th>
+                            <th style="width:25%;">Descripción<span style="color: red;" class="required">*</span></th>
+                            <th style="width:18%;">Equipo Utilizado <span style="color: red;" class="required">*</span></th>
+                            <th style="width:15%;">Tiempo Utilizada (Hrs)<span style="color: red;" class="required">*</span></th>
+                            <th style="width:10%;">Accion</th>
+                        </thead>
+                        <tbody id="item-actividades">  <!-- id="item-inlineformsetname" -->
+                            <!-- formset non forms errors -->
+                            {% for error in formset.non_form_errors %}
+                                <span style="color: red">{{ error }}</span>
+                            {% endfor %}
+                            {% for formss in formset %}
+                                {{ formss.management_form }}
+                                <tr id="actividades-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                    {{ formss.id }}
+                                    <td>
+                                        {{ formss.tipo_actividad }}
+                                    </td>
+                                    <td>
+                                        {{ formss.nom_actividad }}
+                                    </td>
+                                    <td>
+                                        {{ formss.equipo_asociado }}
+                                    </td>
+                                   <td>
+                                        {{ formss.tiempo_equipo_asociado }}
+                                    </td>
+                                
+                                    {% comment %} for delete {% endcomment %}
+                                    {% if formss.instance.pk %}
+                                        <td><a type="button" style="margin-right:5px;" class="btn btn-primary" href="{% url 'cadena_app:add_emisionact' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg></a><a type="button" class="btn btn-danger" href="{% url 'cadena_app:delete_actividadcadena' formss.instance.pk %}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/></svg></a>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Agregar</button>
+                                                    </div>
+                                                </div>
+                                                </div>
                                             </div>
-                                            <div class="modal-footer">
-                                                <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
 
-                                </td> 
+                                        </td> 
 
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <a href="#" id="add-actividades-button" class="btn btn-secondary add-actividades">Add More</a> <!-- id="add-inlineformsetname-button" -->
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="#" id="add-actividades-button" class="btn btn-secondary add-actividades">Agregar</a>
+                </div>
+                {% endwith %}
+                <br>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a href="{% url 'producto_app:productos' %}"><button type="button" class="btn btn-secondary">Cancelar</button></a>
+            </form>
         </div>
-      </div>
-       {% endwith %}
-       </div>
-      <button type="submit" class="btn btn-primary">Guardar</button>
-    </form>
-
-  </div>
+    </div>
 </div>
 
-</div>
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
