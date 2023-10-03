@@ -27,12 +27,34 @@ class Proveedor(models.Model):
     def __str__(self): return "%s" % (self.nom_proveedor)
 
 class Suministro(models.Model):
+
+    KILOGRAMOS = "KG"
+    METROS_CUBICOS = "M3"
+    LITROS = "L"
+    METROS = "M"
+    METROS_CUADRADOS = "M2"
+    UNIDADES = "UN"
+
+    TIPOS_UNIDADES = [
+        (KILOGRAMOS,"kg"),
+        (METROS_CUBICOS,"m³"),
+        (LITROS,"L"),
+        (METROS,"m"),
+        (METROS_CUADRADOS,"m²"),
+        (UNIDADES,"unidad")
+    ]
+
     sku_suministro = models.CharField(max_length=264)
     nom_suministro = models.CharField(max_length=264)
     tip_suministro = models.ForeignKey(TipoSuministro,on_delete=models.CASCADE)
+    unidad_suministro = models.CharField(
+        max_length=2,
+        choices=TIPOS_UNIDADES,
+        default=KILOGRAMOS,
+    )    
     prov_suministro = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
 
-    def __str__(self): return "%s" % (self.nom_suministro)
+    def __str__(self): return "%s-(%s)" % (self.nom_suministro,self.unidad_suministro)
 
 class Equipos(models.Model):
     ACTIVO = "AC"

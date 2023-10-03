@@ -29,7 +29,7 @@
         </ul>
       </div>
     </ul>
-    <ul class="nav nav-pills flex-column mb-auto">
+    <ul class="nav nav-pills flex-column">
       <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Planificación</a>  
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
@@ -44,8 +44,32 @@
 
         </ul>
       </div>
-
     </ul>
+        <ul class="nav nav-pills flex-column">
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Venta</a>  
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_venta' %}">Ordenes de Venta</a></li>
+        </ul>
+      </div>
+    </ul>
+    <ul class="nav nav-pills flex-column ">
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Producción</a>  
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_produccion' %}">Ordenes de Producción</a></li>
+        </ul>
+      </div>
+    </ul>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Envio</a>  
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_entrega' %}">Ordenes de Envio</a></li>
+        </ul>
+      </div>
+    </ul>
+    
     <hr>
     <div class="dropdown">
       <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

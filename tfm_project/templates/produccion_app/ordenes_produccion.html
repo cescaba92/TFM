@@ -1,0 +1,87 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+
+
+{% block body_block %}
+<link href="{% static 'css/productos.css' %}" rel="stylesheet" type="text/css">
+
+<div class="">
+
+    <div class="p-5 text-left">
+        <div class="container py-5">
+          <h1 class="text-body-emphasis">Gestión de Ordenes de Producción</h1>
+           {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                    {% elif message.tags == 'success' %}
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                     {% endif %}
+            {% endfor %}
+          <div class="table-responsive card mt-4">
+            <div class="card-header card-header-secondary">
+                <p>
+                    Listado de Ordenes de Producción para la gestión.
+                </p>
+            </div>
+            <table class="table card-header">
+              <thead class="text-secondary">
+                <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Venta Asociada</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+
+
+            <tbody> 
+                {% if Ordenproduccion_list %}
+                {% for orden in Ordenproduccion_list %}
+                <tr>
+                    <td>{{ orden.id }}</td>
+                    <td><a href="{% url 'produccion_app:modificar_orden_venta' pk=orden.orden_venta_detalle.orden_venta_detalle.id %}">{{ orden.orden_venta_detalle.orden_venta_detalle.cod_venta }}</a></td>
+                    <td>{{ orden.orden_venta_detalle.producto_detalle.nom_producto }}</td>
+                    <td>{{ orden.get_estado_produccion_display}}</td>
+                    <td>
+                        {% if orden.get_estado_produccion_display != "Completado" and orden.get_estado_produccion_display != "Cancelado" %}
+                        <a type="button" class="btn btn-primary" href="{% url 'produccion_app:modificar_produccion' pk=orden.id %}" data-toggle="tooltip" data-placement="top" title="Modificar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                        </svg></a>
+                        <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Cancelar Orden" onclick="confirmarCancelarOrden({{ orden.id }})"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg></button>
+                        {% else %}
+                        <a type="button" class="btn btn-dark" href="{% url 'produccion_app:modificar_produccion' pk=orden.id %}" data-toggle="tooltip" data-placement="top" title="Consultar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+                        </a>
+                        {% endif %}
+
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+<script>
+    function confirmarCancelarOrden(ordenId) {
+        if (confirm("¿Estás seguro de que deseas cancelar esta orden?")) {
+            // Redirige a la URL correspondiente pasando el ordenId
+            window.location.href = "{% url 'produccion_app:cancelar_produccion' pk=0 %}".replace("0", ordenId);
+        }
+    }
+</script>
+{% endblock %}

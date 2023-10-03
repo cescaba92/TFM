@@ -70,13 +70,14 @@ class ProveedorForm(forms.ModelForm):
 class SuministroSoloForm(forms.ModelForm):
     class Meta():
         Model = Suministro
-        fields = ('sku_suministro','nom_suministro','tip_suministro','prov_suministro')
+        fields = ('sku_suministro','nom_suministro','tip_suministro','prov_suministro','unidad_suministro')
 
         widgets = {
             'sku_suministro': forms.TextInput(attrs={'class':'form-control'}),
             'nom_suministro': forms.TextInput(attrs={'class':'form-control'}),
             'tip_suministro': forms.Select(attrs={'class':'form-control'}),
             'prov_suministro': forms.Select(attrs={'class':'form-control'}),
+            'unidad_suministro':forms.Select(attrs={'class':'form-control'}),
         }
 
         labels = {
@@ -84,19 +85,21 @@ class SuministroSoloForm(forms.ModelForm):
             'nom_suministro': 'Nombre',
             'tip_suministro': 'Tipo',
             'prov_suministro': 'Proveedor',
+            'unidad_suministro': 'Unidad'
         }
 
 class SuministroForm(forms.ModelForm):
 
     class Meta():
         model = Suministro
-        fields = ('sku_suministro','nom_suministro','tip_suministro','prov_suministro')
+        fields = ('sku_suministro','nom_suministro','tip_suministro','prov_suministro','unidad_suministro')
 
         widgets = {
             'sku_suministro': forms.TextInput(attrs={'class':'form-control'}),
             'nom_suministro': forms.TextInput(attrs={'class':'form-control'}),
             'tip_suministro': forms.Select(attrs={'class':'form-control'}),
             'prov_suministro': forms.Select(attrs={'class':'form-control'}),
+            'unidad_suministro':forms.Select(attrs={'class':'form-control'}),
         }
 
         labels = {
@@ -104,6 +107,7 @@ class SuministroForm(forms.ModelForm):
             'nom_suministro': 'Nombre',
             'tip_suministro': 'Tipo',  
             'prov_suministro': 'Proveedor',
+            'unidad_suministro': 'Unidad'
         }
 
 

@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.conf import settings
 
-import logging
+import logging 
 
 # ============================================================
 # Proceso de Calculo de Endpoint
@@ -86,7 +86,7 @@ def calcularemisionesTierra(id_cadena,midpointTierra,cantidad):
             #categoria = Categoria_emision.objects.get(nom_categoria=midpointTierra.nom_tipouso)
             sustancia = Sustancia_emision.objects.get(componente_emision=midpointTierra.nom_tipouso)
             print(f"Mi sustancia es {sustancia.id}")
-            limpiarEmisionesTierra()
+            limpiarEmisionesTierra(cadena)
             midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=sustancia)
             for midpoint in midpoints:
                 points = midpoint.valor_emision * cantidad
@@ -106,28 +106,7 @@ def calcularemisionesTierra(id_cadena,midpointTierra,cantidad):
     except CadenaSuministro.DoesNotExist:
         print("aun no hay cadena de Suministro")
     
-    #points_occ = cantidad * midpointTierra.cfm_tipouso
-    #points_relax = cantidad * midpointTierra.cfm_relax_tipouso
-    #tipo_midpoint_occ = "TO"
-    #tipo_midpoint_rel = "TX"
-    # midpoints_emision_asociada = Midpoint_emision.objects.get(nom_midpoint='Tierra Utilizada')
-   
-    
-    # try:
-    #     midpointOcc = MidpointEmision_PlanCadena.objects.get(tipo_midpoint=tipo_midpoint_occ,cadena_asociada=cadena)
-    #     midpointOcc.points_midpoint = points_occ
-    #     midpointOcc.save()
 
-    # except MidpointEmision_PlanCadena.DoesNotExist:
-    #     midpointOcc = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint_occ,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points_occ)
-    #     midpointOcc.save()
-    # try:
-    #     midpointRel = MidpointEmision_PlanCadena.objects.get(tipo_midpoint=tipo_midpoint_rel,cadena_asociada=cadena)
-    #     midpointRel.points_midpoint = points_relax
-    #     midpointRel.save()
-    # except:
-    #     midpointRel = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint_rel,midpoints_emision_asociada=midpoints_emision_asociada,points_midpoint=points_relax)
-    #     midpointRel.save()
 
 def limpiarEmisionesSuministro(suministroEmision):
     midpointsEmision = MidpointEmision_PlanCadena.objects.filter(suministroEmision_asociado=suministroEmision)
@@ -135,8 +114,8 @@ def limpiarEmisionesSuministro(suministroEmision):
     for midpointEmision in midpointsEmision:
         midpointEmision.delete()
 
-def limpiarEmisionesTierra():
-    midpointsEmision = MidpointEmision_PlanCadena.objects.filter(tipo_midpoint="TI")
+def limpiarEmisionesTierra(cadena):
+    midpointsEmision = MidpointEmision_PlanCadena.objects.filter(tipo_midpoint="TI",cadena_asociada=cadena)
 
     for midpointEmision in midpointsEmision:
         midpointEmision.delete()
@@ -606,6 +585,7 @@ class Actividades_PlanCadenaInLine():
             return self.render_to_response(self.get_context_data(form=form))
 
         self.object = form.save()
+        calcularemisionEquipos(self.object)
 
         # for every formset, attempt to find a specific formset save function
         # otherwise, just save.

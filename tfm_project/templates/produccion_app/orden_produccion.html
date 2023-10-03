@@ -1,0 +1,471 @@
+{% extends "basic_app/base.html" %}
+{% load static %}
+
+
+{% block body_block %}
+<link href="{% static 'css/productos.css' %}" rel="stylesheet" type="text/css">
+
+
+<div class="">
+    <div class="p-5 text-left" style="padding:0px;">
+        <div class="container py-5" style="padding:0px;">
+            <h1 class="text-body-emphasis">Orden de Producción para {{form.productonombre}}</h1>
+            <p class="col-lg-12">Documentar las emisiones por producción </p>
+            <form enctype="multipart/form-data" class="container" method="post" id="product_form">
+                 {% if form.existe %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                    {% elif message.tags == 'success' %}
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                     {% endif %}
+                {% endfor %}
+            <div class="table-responsive card mt-4">
+                <div class="card-header card-header-secondary">
+                    <h4 class="card-title">Evaluación Impacto Ambiental</h4>
+                </div>
+                <div class="card-body colorcard">
+                    <div class="container-estadistica">
+                        <div class="kpi">
+                            <div class="kpi-label">Salud Humana</div>
+                            <div class="kpi-number">{{form.salud_humana}}</div>
+                            <div class="kpi-label">Perdida de años de vida-discapacidad</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Terrestres</div>
+                            <div class="kpi-number">{{form.eco_terrestre}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Agua Dulce</div>
+                            <div class="kpi-number">{{form.eco_aguadulce}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Marino</div>
+                            <div class="kpi-number">{{form.eco_marino}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Escases de Recursos</div>
+                            <div class="kpi-number">USD {{form.escase_recursos}}</div>
+                            <div class="kpi-label">Coste Excedente</div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            {% endif %}  
+                {% csrf_token %}
+                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Datos Generales</h2>
+                    </div>
+                    <div class="card-body colorcard">
+                         <div class="form-row rowflex">
+                            <div class="form-group col-md-6 inputflex">
+                                 <label for="id_variation_formset-0-estado_venta" class="labelformulario">Estado de Orden</label>
+                                <input type="text" value="{{form.estado}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                            <div class="form-group col-md-6 inputflex">
+                                 <label for="id_variation_formset-0-estado_venta" class="labelformulario">Fecha Solicitud</label>
+                                <input type="text" value="{{form.fecha_orden}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                        </div>
+                         <div class="form-row rowflex">
+                            <div class="form-group col-md-6 inputflex">
+                                <label for="id_variation_formset-0-estado_venta" class="labelformulario">Producto</label>
+                                <input type="text" value="{{form.productonombre}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                            <div class="form-group col-md-6 inputflex">
+                                 <label for="id_variation_formset-0-estado_venta" class="labelformulario">Cantidad</label>
+                                <input type="text" value="{{form.cantidad}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Datos Producción</h2>
+                    </div>
+                    <div class="card-body colorcard">
+                        <div class="form-row rowflex">
+                            <div class="form-group col-md-6 inputflex" style="display:none;">
+                                <label for="id_variation_formset-0-ser_equipo">{{form.orden_venta_detalle.label}}</label>
+                                {{form.orden_venta_detalle}}
+                                <input id="form-pk" type="text" value="{{ form.instance.pk}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                            
+                        </div>
+                        {% if form.estado == "Registrado" %}
+                        <div class="form-row rowflex">
+                        {% else %}
+                        <div class="form-row rowflex" style="display:none;">
+                        {% endif %}  
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-nom_equipo" class="labelformulario">{{form.fuente_energia.label}}</label>
+                                {{form.fuente_energia}}
+                            </div>
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-fabr_equipo" class="labelformulario">{{form.tierra_ocupada.label}}</label>
+                                {{form.tierra_ocupada}}
+                            </div>
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-prov_equipo" class="labelformulario">{{form.tierra_m2.label}}</label>
+                                {{form.tierra_m2}}
+                            </div>
+                        </div>
+                        {% if form.estado != "Registrado" %}
+                        <div class="form-row rowflex">
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-estado_venta" class="labelformulario">Fuente de Energia</label>
+                                <input type="text" value="{{form.fuente}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-estado_venta" class="labelformulario">Tipo de Tierra Ocupada</label>
+                                <input type="text" value="{{form.tierra}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                            <div class="form-group col-md-4 inputflex">
+                                <label for="id_variation_formset-0-estado_venta" class="labelformulario">m2 de uso</label>
+                                <input type="text" value="{{form.m2}}" class="form-control" disabled="True" maxlength="50">
+                            </div>
+                        </div>
+                        {% endif %}  
+                    </div>
+                </div>
+                {% with named_formsets.suministros as formset %}
+                {{ formset.management_form }}
+                <script type="text/html"  id="suministros-template"> 
+                    <tr id="suministros-__prefix__" data-row="__prefix__" dataclass= hide_all>
+                        {% for fields in formset.empty_form.hidden_fields %}
+                            {{ fields }}
+                        {% endfor %}
+                    
+                        {% for fields in formset.empty_form.visible_fields %}
+                            <td>{{fields}}</td>
+                        {% endfor %}
+                    </tr>
+                </script>
+
+                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Ordenes de Suministros</h2>
+                        <p>Gestionar los pedidos de suministros</p>
+                    </div>
+                    <table class="table card-header">
+                        <thead class="text-secondary">
+                            <th style="width:30%;">Proveedor <span style="color: red;" class="required">*</span><a href="{% url 'suministro_app:add_proveedor' %}" target="_blank" class="badge badge-little">Crear Proveedor</a></th>
+                            <th style="width:30%;">Suministro <span style="color: red;" class="required">*</span><a href="{% url 'suministro_app:add_suministros' %}" target="_blank" class="badge badge-little">Crear Suministro</a></th>
+                            <th style="width:10%;">Cantidad<span style="color: red;" class="required">*</span></th>
+                            <th style="width:10%;">Estado</th>
+                            <th style="width:20%;">Accion</th>
+                        </thead>
+                        <tbody id="item-suministros">  <!-- id="item-inlineformsetname" -->
+                            <!-- formset non forms errors -->
+                            {% for error in formset.non_form_errors %}
+                                <span style="color: red">{{ error }}</span>
+                            {% endfor %}
+                            {% for formss in formset %}
+                                {{ formss.management_form }}
+                                <tr id="suministros-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                    {{ formss.id }}
+
+                                    {% if formss.estado_pedido == "Registrado" %}
+                                    <td>
+                                        {{ formss.proveedor_suministro }}
+                                    </td>
+                                    <td>
+                                        {{ formss.suministro_asociado }}
+                                    </td>
+                                    <td>
+                                        {{ formss.cantidad_suministro }}
+                                    </td>
+                                    
+                                    {% else %}
+                                    {% if formss.estado_pedido %}
+                                   <td>
+                                        <input type="text" value="{{formss.proveedor}}" class="form-control" disabled="True" maxlength="50">
+                                        <a style="display:none;">{{ formss.proveedor_suministro }}</a>
+                                    </td>
+                                    <td>
+                                        <input type="text" value="{{formss.suministro}}" class="form-control" disabled="True" maxlength="50">
+                                        <a style="display:none;">{{ formss.suministro_asociado }}</a>
+                                    </td>
+                                    <td>
+                                        <input type="text" value="{{formss.cantidad}}" class="form-control" disabled="True" maxlength="50">
+                                        <a style="display:none;">{{ formss.cantidad_suministro }}</a>
+
+                                    </td>
+                                    {% else %}
+                                        {% if form.estado != "Completado" and form.estado != "Cancelado" %}
+                                        <td>
+                                            {{ formss.proveedor_suministro }}
+                                        </td>
+                                        <td>
+                                            {{ formss.suministro_asociado }}
+                                        </td>
+                                        <td>
+                                            {{ formss.cantidad_suministro }}
+                                        </td>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% endif %}
+                                    <td>
+                                        {{ formss.estado_pedido}}
+                                    </td>
+                                    {% comment %} for delete {% endcomment %}
+                                    
+                                    {% if formss.instance.pk %}
+                                        <td>
+                                            {% if formss.estado_pedido != "Cancelado" and formss.estado_pedido != "Completado"%}
+                                                <a type="button" style="margin-right:5px;" class="btn btn-primary" href="{% url 'produccion_app:modificar_suministro' formss.instance.pk %}" data-toggle="tooltip" data-placement="top" title="Modificar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg></a>
+                                                <a type="button" class="btn btn-danger" href="{% url 'produccion_app:cancelar_suministro' formss.instance.pk %}" data-toggle="tooltip" data-placement="top" title="Cancelar Orden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg></a>
+                                            {% else %}
+                                                <a type="button" style="margin-right:5px;" class="btn btn-dark" href="{% url 'produccion_app:modificar_suministro' formss.instance.pk %}" data-toggle="tooltip" data-placement="top" title="Consultar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg></a>
+                                            {% endif %}
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+
+                                        </td> 
+
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if form.estado != "Completado" and form.estado != "Cancelado" %}
+                    <a href="#" id="add-variant-button" class="btn btn-secondary add-variants">Agregar</a> 
+                    {% endif %}
+                </div>
+        
+                {% endwith %}
+
+               
+                {% with named_formsets.actividades as formset %}
+                {{ formset.management_form }}
+
+                <script type="text/html"  id="actividades-template"> 
+                    <tr id="actividades-__prefix__" data-row="__prefix__" dataclass= hide_all>
+                        {% for fields in formset.empty_form.hidden_fields %}
+                            {{ fields }}
+                        {% endfor %}
+
+                                    <td>
+                                        {{ formset.empty_form.nom_actividad}}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.equipo_asociado }}
+                                    </td>
+                                    <td>
+                                        {{ formset.empty_form.tiempo_equipo_asociado }}
+                                    </td>
+                    </tr>
+                </script>
+
+                <div class="table-responsive card mt-4">
+                    <div class="card-header card-header-secondary">
+                        <h2 class="card-title">Actividades</h2>
+                        <p>Enumar las actividades que se realizan en la cadena de producción (actividades productivas o de envio) y las emisiones planificadas </p>
+                    </div>
+                    <table class="table card-header">
+                        <thead class="text-secondary">
+                            <th style="width:25%;">Descripción<span style="color: red;" class="required">*</span></th>
+                            <th style="width:18%;">Equipo Utilizado<span style="color: red;" class="required">*</span><a href="{% url 'suministro_app:add_equipo' %}" target="_blank" class="badge badge-little">Crear Equipos</a></th>
+                            <th style="width:17%;">Tiempo Utilizada (Hrs)<span style="color: red;" class="required">*</span></th>
+                            <th style="width:10%;">Estado<span style="color: red;" class="required">*</span></th>
+                            <th style="width:10%;">Accion</th>
+                        </thead>
+                        <tbody id="item-actividades">  <!-- id="item-inlineformsetname" -->
+                            <!-- formset non forms errors -->
+                            {% for error in formset.non_form_errors %}
+                                <span style="color: red">{{ error }}</span>
+                            {% endfor %}
+                            {% for formss in formset %}
+                                {{ formss.management_form }}
+                                <tr id="actividades-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                    {{ formss.id }}
+                                    {% if formss.estado %}
+
+                                        {% if formss.estado == "Planificado" %}
+                                            <td>
+                                                {{ formss.nom_actividad }}
+                                            </td>
+                                            <td>
+                                                {{ formss.equipo_asociado }}
+                                            </td>
+                                        {% else %}
+                                            <td>
+                                                <input type="text" value="{{formss.nombre}}" class="form-control" disabled="True" maxlength="50">
+                                                <a style="display:none;">{{ formss.nom_actividad }}</a>
+                                            </td>
+                                            <td>
+                                                <input type="text" value="{{formss.equipo}}" class="form-control" disabled="True" maxlength="50">
+                                                <a style="display:none;">{{ formss.equipo_asociado }}</a>
+                                            </td>
+                                        {% endif %}
+
+                                        {% if formss.estado == "Completado" %}
+                                            <td>
+                                                <input type="text" value="{{formss.tiempo}}" class="form-control" disabled="True" maxlength="50">
+                                                <a style="display:none;">{{ formss.tiempo_equipo_asociado }}</a>
+                                            </td>
+                                        {% else %}
+                                            <td>
+                                                {{ formss.tiempo_equipo_asociado }}
+                                            </td>
+                                        {% endif %}
+
+                                    {% else %}
+                                        {% if form.estado != "Completado" and form.estado != "Cancelado" %}
+                                        <td>
+                                            {{ formss.nom_actividad }}
+                                        </td>
+                                        <td>
+                                            {{ formss.equipo_asociado }}
+                                        </td>
+                                        <td>
+                                            {{ formss.tiempo_equipo_asociado }}
+                                        </td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <td>
+                                        {{ formss.estado }}
+                                    </td>
+                                    {% if formss.instance.pk %}
+                                        <td>
+                                        {% if formss.estado != "Cancelado" and formss.estado != "Completado" %}
+                                        <a type="button" style="margin-right:5px;" class="btn btn-primary" href="{% url 'produccion_app:modificar_actividad_orden' formss.instance.pk %}" data-toggle="tooltip" data-placement="top" title="Modificar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg></a><a type="button" class="btn btn-danger" href="{% url 'produccion_app:eliminar_actividad_orden' formss.instance.pk %}" data-toggle="tooltip" data-placement="top" title="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/></svg></a>
+                                        {% else %}
+                                        <a type="button" style="margin-right:5px;" class="btn btn-dark" href="{% url 'produccion_app:modificar_actividad_orden' formss.instance.pk %}" data-toggle="tooltip" data-placement="top" title="Ver"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg></a>
+                                        {% endif %}
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Are Your Sure You Want To Delete This?</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a href="{% url 'producto_app:delete_variant' formss.instance.pk %}" type="button" class="btn btn-primary">Yes, Delete</a>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Agregar</button>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+
+                                        </td> 
+
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if form.estado != "Completado" and form.estado != "Cancelado" %}
+                    <a href="#" id="add-actividades-button" class="btn btn-secondary add-actividades">Agregar</a>
+                    {% endif %}
+                </div>
+                {% endwith %}
+                <br>
+                {% if form.estado != "Completado" and form.estado != "Cancelado" %}
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                {% endif %}
+                {% if form.estado == "Pedido" %}
+                <a href="{% url 'produccion_app:enviar_orden_progreso' pk=form.instance.pk%}"><button type="button" class="btn btn-success">Iniciar Producción</button></a>
+                {% endif %}
+                {% if form.estado == "En Producción" %}
+                <button type="button" id="button-finalizar" class="btn btn-success">Finalizar Producción</button>
+                {% endif %}
+                <a href="{% url 'produccion_app:ordenes_produccion' %}"><button type="button" class="btn btn-secondary">Cerrar</button></a>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.getElementById("button-finalizar").addEventListener("click", function() {
+        if (confirm("Al finalizar la produccion, ya no se podra solicitar ninguna orden de suministro, registro de actividad y tampoco emisiones asociadas. ¿Estás seguro de que deseas realizar esta acción?")) {
+            const campoPK = document.getElementById("form-pk").value;
+            const urlRedireccion = "/produccion_app/produccion/orden/completar/"+campoPK;
+            window.location.href = urlRedireccion;
+        }
+    });
+</script>
+<script>
+
+  $(document).ready(function() {
+    // when user clicks add more btn of variants
+      $('.add-suministros').click(function(ev) {
+          ev.preventDefault();
+          var count = $('#item-suministros').children().length;
+          var tmplMarkup = $('#suministros-template').html();
+          var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+          $('#item-suministros').append(compiledTmpl);
+  
+          // update form count
+          $('#id_suministros-TOTAL_FORMS').attr('value', count+1);
+      });
+  });
+
+    $(document).ready(function() {
+    // when user clicks add more btn of variants
+      $('.add-actividades').click(function(ev) {
+          ev.preventDefault();
+          var count = $('#item-actividades').children().length;
+          var tmplMarkup = $('#actividades-template').html();
+          var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+          $('#item-actividades').append(compiledTmpl);
+  
+          // update form count
+          $('#actividades-TOTAL_FORMS').attr('value', count+1);
+      });
+  });
+</script>
+<script>
+    function cargarProductos(selectElement) {
+        var row = $(selectElement).closest("tr");
+        var proveedorId = $(selectElement).val();
+        var productoSelect = row.find(".suministro-select");
+
+        $.ajax({
+            url: "{% url 'cadena_app:cargar_suministros' %}",
+            data: {'proveedor_id': proveedorId},
+            success: function (data) {
+                productoSelect.empty();
+                productoSelect.append($('<option>', { value: '', text: '---------' }));
+                $.each(data, function (index, producto) {
+                    productoSelect.append($('<option>', { value: producto.id, text: producto.nom_suministro }));
+                });
+            }
+        });
+    }
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+
+{% endblock %}
