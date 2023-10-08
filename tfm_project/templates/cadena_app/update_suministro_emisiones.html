@@ -17,6 +17,17 @@
      <h2 class="text-body-emphasis">Suministro {{form.suministronombre}} utilizado</h2>
       <div class="form-group">
          {% csrf_token %}
+                                 {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                    {% elif message.tags == 'success' %}
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                     {% endif %}
+                {% endfor %}
          <div class="table-responsive card mt-4">
                 <div class="card-header card-header-secondary">
                     <h3 class="card-title">Datos Generales</h3>
@@ -35,12 +46,13 @@
                             <label for="id_variation_formset-0-ser_equipo">{{form.cadena_asociada.label}}</label>
                             {{form.cadena_asociada}}
                             </div>
-                    </div>
-                    <div class="form-row rowflex">
-                        <div class="form-group col-md-6 inputflex">
+                            <div class="form-group col-md-6 inputflex">
                             <label for="id_variation_formset-0-nom_equipo">{{form.unidad_suministro.label}}</label>
                             {{form.unidad_suministro}}
                         </div>
+                    </div>
+                    <div class="form-row rowflex">
+                        
                         <div class="form-group col-md-6 inputflex">
                             <label for="id_variation_formset-0-fabr_equipo">{{form.cantidad_suministro.label}}</label>
                             {{form.cantidad_suministro}}
@@ -241,6 +253,7 @@
                 {% endwith %}
        <br>
       <button type="submit" class="btn btn-primary">Guardar</button>
+      <a href="{% url 'cadena_app:update_cadena1' pk=form.indice %}"><button type="button" class="btn btn-secondary">Cerrar</button></a>
     </form>
 
   </div>

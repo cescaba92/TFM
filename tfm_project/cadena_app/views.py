@@ -1,4 +1,6 @@
 from django.shortcuts import (render, redirect)
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from cadena_app.forms import (CadenaNuevaForm,SuministroPlanFormSet,SuministroPlanCadenaForm,SuministroEmisionPlanFormSet,SuministroTramosPlanFormSet,Actividad_PlanCadenaForm,ActividadPlanFormSet,ActividadEmisionPlanCadenaForm,ActividadEmisionPlanFormSet,SuministroViajesPlanCadenaForm)
 from cadena_app.models import (CadenaSuministro, Suministro_PlanCadena,Sustancia_emision,Midpoint_emision,SuministroEmision_PlanCadena,Tramos_PlanCadena,Actividad_PlanCadena,ActividadEmision_PlanCadena,MidpointEmision_PlanCadena,Sustancia_Midpoint_emision,Categoria_emision,MidpointTramos,Categoria_emision)
 from cadena_app.models import (MidpointEndpointFactor, CadenaCalculosEndpoint,CalculosEndpoint,Endpoint,SuministroTramos_PlanCadena)
@@ -159,19 +161,32 @@ def calcularemisionesSuministro(suministroEmision):
 def calcularemisionEquipos(actividad_PlanCadena):
     print("entro a calcularemisionEquipos")
     uso_horas = actividad_PlanCadena.tiempo_equipo_asociado
-    potencia = actividad_PlanCadena.equipo_asociado.potencia_equipo
-    kilo_vatios_hora = (potencia/1000.0)*uso_horas
+    cadena = actividad_PlanCadena.cadena_asociada
 
-    fuente_energia = actividad_PlanCadena.cadena_asociada.fuente_energia
-    co2_equipo_point = fuente_energia.co2_energia * kilo_vatios_hora
-    nox_equipo_point = fuente_energia.nox_energia * kilo_vatios_hora
-    so2_equipo_point = fuente_energia.so2_energia  * kilo_vatios_hora
-    pm_equipo_point = fuente_energia.pm_energia * kilo_vatios_hora
-    co60_equipo_point = fuente_energia.co60_energia * kilo_vatios_hora
+    if actividad_PlanCadena.equipo_asociado is not None:
+
+        potencia = actividad_PlanCadena.equipo_asociado.potencia_equipo
+
+        kilo_vatios_hora = (potencia/1000.0)*uso_horas
+
+        fuente_energia = actividad_PlanCadena.cadena_asociada.fuente_energia
+        co2_equipo_point = fuente_energia.co2_energia * kilo_vatios_hora
+        nox_equipo_point = fuente_energia.nox_energia * kilo_vatios_hora
+        so2_equipo_point = fuente_energia.so2_energia  * kilo_vatios_hora
+        pm_equipo_point = fuente_energia.pm_energia * kilo_vatios_hora
+        co60_equipo_point = fuente_energia.co60_energia * kilo_vatios_hora
+
+    else:
+        co2_equipo_point = 0.00
+        nox_equipo_point = 0.00
+        so2_equipo_point = 0.00
+        pm_equipo_point = 0.00
+        co60_equipo_point = 0.00
+
 
     puntos_a_revisar = [(settings.CODIGO_C02,co2_equipo_point),(settings.CODIGO_NOX,nox_equipo_point),(settings.CODIGO_SO2,so2_equipo_point),(settings.CODIGO_PM,pm_equipo_point),(settings.CODIGO_CO60,co60_equipo_point)]
 
-    cadena = actividad_PlanCadena.cadena_asociada
+        
     actividad = actividad_PlanCadena
     tipo_midpoint = "CE"
 
@@ -190,6 +205,7 @@ def calcularemisionEquipos(actividad_PlanCadena):
                 midpointEmision = MidpointEmision_PlanCadena(cadena_asociada=cadena,tipo_midpoint=tipo_midpoint,sustancia_midpoint_asociado=midpoint,points_midpoint=points,actividad_asociada=actividad)
                 midpointEmision.save()
 
+    
     calcularEndpoints(cadena) 
 
 def calcularemisionesActividades(actividadEmision):
@@ -340,7 +356,12 @@ class CadenaSuministroInLine():
             else:
                 formset.save()
 
-        return redirect('producto_app:productos')
+
+        messages.success(
+            self.request, 'Cadena de Suministros guardado'
+            )
+
+        return redirect('cadena_app:update_cadena1',pk=cadena)
 
     def formset_variants_valid(self,formset):
         """
@@ -383,7 +404,7 @@ class CadenaSuministroInLine():
             actividad.save()
             calcularemisionEquipos(actividad)
             
-
+@method_decorator(login_required, name='dispatch')
 class CadenaSuministroCreateView(CadenaSuministroInLine, CreateView):
     
     def get_form(self, form_class=None):
@@ -438,7 +459,7 @@ class CadenaSuministroCreateView(CadenaSuministroInLine, CreateView):
                 'actividades': ActividadPlanFormSet(self.request.POST or None, self.request.FILES or None, prefix='actividades'),
             }
 
-
+@method_decorator(login_required, name='dispatch')
 class CadenaSuministroUpdateView(CadenaSuministroInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -463,6 +484,7 @@ class CadenaSuministroUpdateView(CadenaSuministroInLine, UpdateView):
                     proveedor = Proveedor.objects.get(nom_proveedor=suministro.prov_suministro)
                     #print(f"get_form: {proveedor.id}")
                     formset_form['proveedor_suministro'].initial = proveedor.id
+                    formset_form.unidad = suministro.get_unidad_suministro_display()
                 except:
                     print("error")
 
@@ -514,6 +536,7 @@ class CadenaSuministroUpdateView(CadenaSuministroInLine, UpdateView):
 
         return form
 
+@login_required
 def delete_CadenaSuministro(request, pk):
 
     try:
@@ -526,10 +549,11 @@ def delete_CadenaSuministro(request, pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Suministro eliminado correctamente.'
             )
     return redirect('cadena_app:update_cadena1', pk=variant.cadena_asociada.id)
 
+@login_required
 def delete_CadenaActividad(request, pk):
 
     try:
@@ -542,14 +566,14 @@ def delete_CadenaActividad(request, pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Actividad eliminada correctamente.'
             )
     return redirect('cadena_app:update_cadena1', pk=variant.cadena_asociada.id)
 
 def cargar_suministros(request):
     proveedor_id = request.GET.get('proveedor_id')
     suministros = Suministro.objects.filter(prov_suministro=proveedor_id)
-    data = [{'id':suministro.id,'nom_suministro':suministro.nom_suministro} for suministro in suministros]
+    data = [{'id':suministro.id,'nom_suministro':suministro.nom_suministro,'unidad_suministro':suministro.unidad_suministro} for suministro in suministros]
     return JsonResponse(data,safe=False)
 
 # ============================================================
@@ -618,6 +642,7 @@ class Actividades_PlanCadenaInLine():
             emision.save()
             calcularemisionesActividades(emision)
 
+@method_decorator(login_required, name='dispatch')
 class Actividades_PlanCadenaUpdateView(Actividades_PlanCadenaInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -673,7 +698,7 @@ def delete_ActividadesEmision(request, pk):
 
     emision.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Emision eliminada correctamente.'
             )
     return redirect('cadena_app:add_emisionact', pk=emision.actividadplan_asociado.id)
 
@@ -711,7 +736,11 @@ class Suministro_PlanCadenaInLine():
             else:
                 formset.save()
 
-        return redirect('cadena_app:update_cadena1', pk=form.cleaned_data['cadena_asociada'].id)
+        messages.success(
+            self.request, 'Suministro Guardado exitosamente.'
+            )
+
+        return redirect('cadena_app:add_emisionplan', pk=self.object.pk)
 
     def formset_variants_valid(self,formset):
         """
@@ -738,6 +767,7 @@ class Suministro_PlanCadenaInLine():
             tramo.save()
             calcularEmisionesTramosSuministro(tramo)
 
+@method_decorator(login_required, name='dispatch')
 class Suministro_PlanCadenaUpdateView(Suministro_PlanCadenaInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -779,6 +809,7 @@ class Suministro_PlanCadenaUpdateView(Suministro_PlanCadenaInLine, UpdateView):
             form.productonombre = suministro_plancadena.cadena_asociada.prod_asociado
             form.suministronombre = suministro_plancadena.suministro_asociado.nom_suministro
             form.fields['proveedor_suministro'].initial = suministro_plancadena.suministro_asociado.prov_suministro.id
+            form.indice = suministro_plancadena.cadena_asociada.id
 
             #print(f"get_form: {suministro_plancadena.suministro_asociado.nom_suministro}")
             # for form_in_formset in self.get_named_formsets()['variants'].forms:
@@ -809,7 +840,7 @@ def delete_SuministroEmision(request, pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Emision eliminada correctamente'
             )
     return redirect('cadena_app:add_emisionplan', pk=variant.sumcadena_asociado.id)
 
@@ -824,7 +855,7 @@ def delete_SuministroViaje(request,pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Tramo de Viaje eliminado correctamente'
             )
     return redirect('cadena_app:add_emisionplan', pk=variant.sumcadena_asociado.id)
 
@@ -845,7 +876,7 @@ def delete_TramoPlan(request, pk):
 
     tramo.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Tramo de viaje eliminado correctamente.'
             )
     return redirect('cadena_app:update_cadena1', pk=tramo.cadena_asociada.id)
 

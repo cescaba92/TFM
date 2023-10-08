@@ -49,7 +49,7 @@ class DetalleOrdenVentaForm(forms.ModelForm):
         widgets = {
             'orden_venta_detalle':forms.Select(attrs={'class':'form-control'}),
             'producto_detalle':forms.Select(attrs={'class':'form-control'}),
-            'cantidad_detalle':forms.NumberInput(attrs={'class':'form-control'}),
+            'cantidad_detalle':forms.NumberInput(attrs={'class':'form-control','min':0}), 
         };
 
         labels = {
@@ -74,7 +74,7 @@ class OrdenProduccionForm(forms.ModelForm):
             'orden_venta_detalle':forms.Select(attrs={'class':'form-control'}),
             'fuente_energia':forms.Select(attrs={'class':'form-control'}),
             'tierra_ocupada':forms.Select(attrs={'class':'form-control'}),
-            'tierra_m2': forms.NumberInput(attrs={'class':'form-control'}),
+            'tierra_m2': forms.NumberInput(attrs={'class':'form-control','min':0}), 
         };
 
         labels = {

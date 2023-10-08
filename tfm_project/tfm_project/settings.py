@@ -111,7 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Backend de autenticación predeterminado
+]
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -123,6 +125,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+SESSION_COOKIE_SECURE = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -133,7 +136,7 @@ STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
-LOGIN_URL = 'basic_app/user_login'
+LOGIN_URL = '/basic_app/user_login'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

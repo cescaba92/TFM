@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from suministro_app.forms import (ProveedorForm, SuministroForm, SuministroFormSet,EquipoForm,SuministroForm)
 from suministro_app.models import (Proveedor, Suministro, Equipos)
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
@@ -47,6 +49,7 @@ class ProveedorInLine():
             variant.prov_suministro = self.object
             variant.save()
 
+@method_decorator(login_required, name='dispatch')
 class ProveedorUpdate(ProveedorInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -78,7 +81,7 @@ def delete_proveedor(request,pk):
     proveedor.delete()
 
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Proveedor eliminado.'
             )
     return redirect('suministro_app:proveedores')
 
@@ -94,15 +97,16 @@ def delete_suministro(request, pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Suministro eliminado.'
             )
     return redirect('suministro_app:proveedores', pk=variant.prod_asociado.id)
 
-
+@method_decorator(login_required, name='dispatch')
 class ProveedoresListView(ListView):
     model = Proveedor
     template_name = 'suministro_app/proveedores.html'
 
+@method_decorator(login_required, name='dispatch')
 class ProveedoresCreateView(ProveedorInLine, CreateView):
     
     def get_context_data(self, **kwargs):
@@ -123,10 +127,12 @@ class ProveedoresCreateView(ProveedorInLine, CreateView):
 # ============================================================
 # Suministro
 # ============================================================
+@method_decorator(login_required, name='dispatch')
 class SuministroListView(ListView):
     model = Suministro
     template_name = 'suministro_app/suministros.html'
 
+@method_decorator(login_required, name='dispatch')
 class SuministroCreateView(CreateView):
     model = Suministro
     template_name='suministro_app/new_update_suministro.html'
@@ -140,6 +146,7 @@ class SuministroCreateView(CreateView):
         form.save()
         return redirect('suministro_app:suministros')
 
+@method_decorator(login_required, name='dispatch')
 class SuministroUpdate(UpdateView):
     model = Suministro
     template_name='suministro_app/new_update_suministro.html'
@@ -169,7 +176,7 @@ def delete_suministro(request,pk):
     suministro.delete()
 
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Suministro eliminado.'
             )
     return redirect('suministro_app:suministros')
 
@@ -177,6 +184,7 @@ def delete_suministro(request,pk):
 # Equipos
 # ============================================================
 
+@method_decorator(login_required, name='dispatch')
 class EquipoCreateView(CreateView):
     model = Equipos
     template_name='suministro_app/new_update_equipos.html'
@@ -190,10 +198,12 @@ class EquipoCreateView(CreateView):
         form.save()
         return redirect('suministro_app:equipos')
 
+@method_decorator(login_required, name='dispatch')
 class EquiposListView(ListView):
     model = Equipos
     template_name = 'suministro_app/equipos.html'
 
+@method_decorator(login_required, name='dispatch')
 class EquipoUpdate(UpdateView):
     model = Equipos
     template_name='suministro_app/new_update_equipos.html'
@@ -223,7 +233,7 @@ def delete_equipo(request,pk):
     equipo.delete()
 
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Equipo eliminado.'
             )
     return redirect('suministro_app:equipos')
 

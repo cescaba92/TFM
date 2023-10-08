@@ -3,6 +3,7 @@ from suministro_app.models import Proveedor
 from suministro_app.models import Suministro
 from suministro_app.models import Equipos
 from django.forms import inlineformset_factory
+from datetime import date  # Importa el módulo date de datetime
 
 class EquipoForm(forms.ModelForm):
 
@@ -14,13 +15,18 @@ class EquipoForm(forms.ModelForm):
             'nom_equipo': forms.TextInput(attrs={'class':'form-control'}),
             'fabr_equipo': forms.TextInput(attrs={'class':'form-control'}),
             'ser_equipo': forms.TextInput(attrs={'class':'form-control'}),
-            'fec_adqui_equipo':forms.DateInput(attrs={'class':'form-control'}),
-            'vida_equipo': forms.NumberInput(attrs={'class':'form-control'}),
+            'fec_adqui_equipo':forms.DateInput(
+        format=('%Y-%m-%d'),
+        attrs={'class': 'form-control', 
+               'placeholder': 'Select a date',
+               'type': 'date'
+              }),
+            'vida_equipo': forms.NumberInput(attrs={'class':'form-control','min':0}), 
             'est_equipo': forms.Select(attrs={'class':'form-control'}),
             'ubi_equipo': forms.TextInput(attrs={'class':'form-control'}),
-            'gar_equipo': forms.NumberInput(attrs={'class':'form-control'}),
+            'gar_equipo': forms.NumberInput(attrs={'class':'form-control','min':0}), 
             'prov_equipo': forms.Select(attrs={'class':'form-control'}),
-            'potencia_equipo': forms.NumberInput(attrs={'class':'form-control'}),
+            'potencia_equipo': forms.NumberInput(attrs={'class':'form-control','min':0}), 
         }
 
         labels = {
@@ -35,7 +41,10 @@ class EquipoForm(forms.ModelForm):
             'prov_equipo':'Proveedor',
             'potencia_equipo':'Potencia (W)'
         }
-    
+        
+    def __init__(self, *args, **kwargs):
+        super(EquipoForm, self).__init__(*args, **kwargs)
+        self.fields['fec_adqui_equipo'].widget.attrs['max'] = date.today()
 
 
 class ProveedorForm(forms.ModelForm):

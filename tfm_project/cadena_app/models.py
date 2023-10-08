@@ -16,6 +16,7 @@ class FuenteEnergia(models.Model):
     so2_energia = models.FloatField()
     pm_energia = models.FloatField()
     co60_energia = models.FloatField()
+    
 
     def __str__(self): return "%s" % (self.nom_energia)
 
@@ -175,7 +176,7 @@ class Actividad_PlanCadena(models.Model):
         default=PRODUCTIVA,
     )
     nom_actividad = models.CharField(max_length=264,null=True)
-    equipo_asociado = models.ForeignKey(Equipos,on_delete=models.CASCADE,null=True)
+    equipo_asociado = models.ForeignKey(Equipos,on_delete=models.CASCADE,null=True,blank=True)
     tiempo_equipo_asociado = models.FloatField()
 
 class ActividadEmision_PlanCadena(models.Model):

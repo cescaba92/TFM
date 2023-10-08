@@ -155,7 +155,7 @@ class Actividad_Orden(models.Model):
         default=PLANIFICADO,
     )
     nom_actividad = models.CharField(max_length=264,null=True)
-    equipo_asociado = models.ForeignKey(Equipos,on_delete=models.CASCADE,null=True)
+    equipo_asociado = models.ForeignKey(Equipos,on_delete=models.CASCADE,null=True,blank=True)
     tiempo_equipo_asociado = models.FloatField()
 
 class ActividadEmision_Orden(models.Model):
@@ -197,7 +197,7 @@ class Actividad_Envio(models.Model):
         default=PLANIFICADO,
     )
     nom_actividad = models.CharField(max_length=264,null=True)
-    equipo_asociado = models.ForeignKey(Equipos,on_delete=models.CASCADE,null=True)
+    equipo_asociado = models.ForeignKey(Equipos,on_delete=models.CASCADE,null=True,blank=True)
     tiempo_equipo_asociado = models.FloatField()
 
 class ActividadEmision_Envio(models.Model):

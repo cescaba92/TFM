@@ -1,8 +1,166 @@
 {% extends "basic_app/base.html" %}
+{% load static %}
 {% block body_block %}
+<link href="{% static 'css/productos.css' %}" rel="stylesheet" type="text/css">
+<div class="">
+    <div class="p-5 text-left">
+        <div class="container py-5">
+          <h1 class="text-body-emphasis">Página de Inicio</h1>
+           {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                    {% elif message.tags == 'success' %}
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                     {% endif %}
+                {% endfor %}
+         	<div class="table-responsive card mt-4">
+                <div class="card-header card-header-secondary">
+                    <h4 class="card-title">Impacto Ambiental durante el presente Mes</h4>
+                </div>
+                <div class="card-body colorcard">
+                    <div class="container-estadistica">
+                        <div class="kpi">
+                            <div class="kpi-label">Salud Humana</div>
+                            {% if alertax.0 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif alertax.0 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{salud_humana}}</div>
+                            <div class="kpi-label">Perdida de años de vida-discapacidad</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Terrestres</div>
+                             {% if alertax.1 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif alertax.1 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{eco_terrestre}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Agua Dulce</div>
+                            {% if alertax.2 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif alertax.2 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{eco_aguadulce}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Marino</div>
+                            {% if alertax.3 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif alertax.3 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{eco_marino}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Escases de Recursos</div>
+                            {% if alertax.4 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif alertax.4 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            USD {{escase_recursos}}</div>
+                            <div class="kpi-label">Coste Excedente</div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        
 
-<div >
-	<h1>Index</h1>
+         	<div class="table-responsive card mt-4">
+            <div class="card-header card-header-secondary">
+                <h4 class="card-title">Impacto Ambiental Mes por Productos</h4>
+            </div>
+            <table class="table card-header">
+              <thead class="text-secondary">
+                <tr>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Nombre</th>
+  					<th scope="col">Salud Humana</th>
+                    <th scope="col">Eco. Terrestre</th>
+                    <th scope="col">Eco. Agua Dulce</th>
+                    <th scope="col">Eco. Marino</th>
+                    <th scope="col">Escases Recursos</th>
+                </tr>
+            </thead>
+            <tbody> 
+                {% if productos %}
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.0.sku_producto }}</td>
+                    <td>{{ producto.0.nom_producto }}</td>
+                    	{% if producto.6 < 0 %}
+                        <td style="color: red;">
+                        {% elif producto.6 < 1 %}
+                        <td style="color: #ff870b;">
+                        {% else %}
+                        <td style="color: green;">
+                        {% endif %}
+						{{ producto.1 }}</td>
+
+                    {% if producto.7 < 0 %}
+                        <td style="color: red;">
+                        {% elif producto.7 < 1 %}
+                        <td style="color: #ff870b;">
+                        {% else %}
+                        <td style="color: green;">
+                        {% endif %}{{ producto.2 }}</td>
+                    {% if producto.8 < 0 %}
+                        <td style="color: red;">
+                        {% elif producto.8 < 1 %}
+                        <td style="color: #ff870b;">
+                        {% else %}
+                        <td style="color: green;">
+                        {% endif %}{{ producto.3 }}</td>
+                    {% if producto.9 < 0 %}
+                        <td style="color: red;">
+                        {% elif producto.9 < 1 %}
+                        <td style="color: #ff870b;">
+                        {% else %}
+                        <td style="color: green;">
+                        {% endif %}{{ producto.4 }}</td>
+                    {% if producto.10 < 0 %}
+                        <td style="color: red;">
+                        {% elif producto.10 < 1 %}
+                        <td style="color: #ff870b;">
+                        {% else %}
+                        <td style="color: green;">
+                        {% endif %}{{ producto.5 }}</td>
+                </tr>
+                {% endfor %}
+
+                {% endif %}
+            </tbody>
+        </table>
+
+    </div>
+
+
+
+
+        </div>
+    </div>
 </div>
 
 

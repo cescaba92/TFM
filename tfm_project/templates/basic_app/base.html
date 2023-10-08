@@ -16,7 +16,7 @@
 <main class="d-flex flex-nowrap">
 <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark stickybar" style="width: 280px;">
     <a href="{% url 'index' %}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-      <img class="" src="{% static 'images/cliente-4LifeLogo.png' %}" alt="Logo Cliente" >
+      <img class="" src="{% static 'images/logo-empresa-trans.png'  %}" alt="Logo Cliente" style="width: 70%;">
     </a>
     <hr>
     <ul class="nav nav-pills flex-column">
@@ -31,10 +31,8 @@
     </ul>
     <ul class="nav nav-pills flex-column">
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Planificación</a>  
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Proveedores/Suministro</a>  
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="{% url 'producto_app:productos' %}">Productos</a></li>
-          <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{% url 'suministro_app:proveedores' %}">Proveedores</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{% url 'suministro_app:suministros' %}">Suministros</a></li>
@@ -45,31 +43,32 @@
         </ul>
       </div>
     </ul>
-        <ul class="nav nav-pills flex-column">
+    <ul class="nav nav-pills flex-column">
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Venta</a>  
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Planificación de Productos</a>  
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_venta' %}">Ordenes de Venta</a></li>
+          <li><a class="dropdown-item" href="{% url 'producto_app:productos' %}">Productos</a></li>
         </ul>
       </div>
     </ul>
-    <ul class="nav nav-pills flex-column ">
+        <ul class="nav nav-pills flex-column">
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Producción</a>  
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Gestión de Ventas</a>  
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_produccion' %}">Ordenes de Producción</a></li>
+          <li><a class="dropdown-item" href="{% url 'produccion_app:nueva_orden_venta' %}">Nueva Orden Venta</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_venta' %}">Ordenes de Venta</a></li>
         </ul>
       </div>
     </ul>
     <ul class="nav nav-pills flex-column mb-auto">
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Envio</a>  
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Gestión de Producción/Entrega</a>  
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_entrega' %}">Ordenes de Envio</a></li>
-        </ul>
+          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_produccion' %}">Ordenes de Producción</a></li>
+          <li><a class="dropdown-item" href="{% url 'produccion_app:ordenes_entrega' %}">Ordenes de Entrega</a></li>
       </div>
     </ul>
-    
     <hr>
     <div class="dropdown">
       <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

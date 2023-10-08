@@ -32,27 +32,57 @@
                     <div class="container-estadistica">
                         <div class="kpi">
                             <div class="kpi-label">Salud Humana</div>
-                            <div class="kpi-number">{{form.salud_humana}}</div>
+                            {% if form.alerta.0 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.0 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}{{form.salud_humana}}</div>
                             <div class="kpi-label">Perdida de años de vida-discapacidad</div>
                         </div>
                         <div class="kpi">
                             <div class="kpi-label">Eco. Terrestres</div>
-                            <div class="kpi-number">{{form.eco_terrestre}}</div>
+                            {% if form.alerta.1 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.1 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}{{form.eco_terrestre}}</div>
                             <div class="kpi-label">Perdida de especie x año</div>
                         </div>
                         <div class="kpi">
                             <div class="kpi-label">Eco. Agua Dulce</div>
-                            <div class="kpi-number">{{form.eco_aguadulce}}</div>
+                            {% if form.alerta.2 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.2 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}{{form.eco_aguadulce}}</div>
                             <div class="kpi-label">Perdida de especie x año</div>
                         </div>
                         <div class="kpi">
                             <div class="kpi-label">Eco. Marino</div>
-                            <div class="kpi-number">{{form.eco_marino}}</div>
+                            {% if form.alerta.3 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.3 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}{{form.eco_marino}}</div>
                             <div class="kpi-label">Perdida de especie x año</div>
                         </div>
                         <div class="kpi">
                             <div class="kpi-label">Escases de Recursos</div>
-                            <div class="kpi-number">USD {{form.escase_recursos}}</div>
+                            {% if form.alerta.4 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.4 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}USD {{form.escase_recursos}}</div>
                             <div class="kpi-label">Coste Excedente</div>
                         </div>
                     </div>

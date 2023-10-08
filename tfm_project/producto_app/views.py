@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from producto_app.forms import ProductoForm, ProductoVariacionForm,VariationFormSet
 from producto_app.models import (Producto, VariacionProducto)
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
@@ -47,11 +49,12 @@ class ProductoInLine():
             variant.prod_asociado = self.object
             variant.save()
 
+@method_decorator(login_required, name='dispatch')
 class ProductosListView(ListView):
     model = Producto
     template_name = 'producto_app/productos.html'
 
-
+@method_decorator(login_required, name='dispatch')
 class ProductosCreateView(CreateView):
     model = Producto
     template_name='producto_app/nuevoproducto.html'
@@ -65,6 +68,7 @@ class ProductosCreateView(CreateView):
         form.save()
         return redirect('producto_app:productos')
 
+@method_decorator(login_required, name='dispatch')
 class ProductoUpdate(UpdateView):
     model = Producto
     template_name='producto_app/nuevoproducto.html'
@@ -126,7 +130,7 @@ def delete_producto(request,pk):
     producto.delete()
 
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Producto Eliminado.'
             )
     return redirect('producto_app:productos')
 
@@ -142,7 +146,7 @@ def delete_variant(request, pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Variante Eliminado'
             )
     return redirect('producto_app:update_producto', pk=variant.prod_asociado.id)
 

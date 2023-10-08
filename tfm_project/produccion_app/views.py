@@ -1,4 +1,6 @@
 from django.shortcuts import (render, redirect)
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.views.generic import (TemplateView,ListView,CreateView,UpdateView,DeleteView)
 from django.forms.models import inlineformset_factory
 from django.contrib import messages
@@ -88,11 +90,62 @@ def calcularEndpointsEntrega(orden):
 # Orden de Venta
 # ============================================================
 
+@method_decorator(login_required, name='dispatch')
 class OrdenesVentaListView(ListView):
     context_object_name = 'OrdenVenta_list'
     model = OrdenVenta
     template_name = 'produccion_app/ordenes_ventas.html'
 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Calcula el campo personalizado para cada objeto en el queryset
+        queryset = self.get_queryset()
+        for objeto in queryset:
+
+            detalles = DetalleOrdenVenta.objects.filter(orden_venta_detalle=objeto)
+            alertas = 0
+            objeto.alerta = 0
+
+
+            for detalle in detalles:
+                try:
+                    try:
+                        ordenProduccion = OrdenProduccion.objects.get(orden_venta_detalle=detalle)
+
+                        for i in range(5):
+                            x = i+1
+                            endpoint = Endpoint.objects.get(id=x)
+                            produ_calculo = ProduccionCalculosEndpoint.objects.get(orden_asociada=ordenProduccion,midpoint_endpoint=endpoint)
+
+                            emision = produ_calculo.valor_real/ordenProduccion.orden_venta_detalle.cantidad_detalle 
+                            print(f"Cuanto es produ_calculo.valor_real {produ_calculo.valor_real}") 
+                            print(f"Cuanto es orden {ordenProduccion.orden_venta_detalle.cantidad_detalle }") 
+                            if emision > 1.1*produ_calculo.valor_pla:
+                                print(f"Cuanto es emision {emision}") 
+                                alertas = alertas + 1
+
+                    except OrdenProduccion.DoesNotExist:
+                        print("no se encontro valores")
+
+                except ProduccionCalculosEndpoint.DoesNotExist:
+                        print("no se encontro valores")      
+
+            proporcion_alertas = alertas/5
+
+            if proporcion_alertas < 0.10:
+                objeto.alerta  = 1
+
+            elif proporcion_alertas < 0.41:
+                objeto.alerta  = 0
+            else:
+                objeto.alerta  = -1
+
+        # Agrega el queryset modificado al contexto
+        context['OrdenVenta_list'] = queryset
+
+        return context
 
 class OrdenesVentaInLine():
     form_class = OrdenVentaForm
@@ -146,7 +199,7 @@ class OrdenesVentaInLine():
             print("entro aqui - xxx")
             detalle.save()
 
-
+@method_decorator(login_required, name='dispatch')
 class OrdenesVentaCreateView(OrdenesVentaInLine, CreateView):
     
     def get_form(self, form_class=None):
@@ -186,6 +239,7 @@ class OrdenesVentaCreateView(OrdenesVentaInLine, CreateView):
                 'detalles': OrdenVentaDetalleFormSet(self.request.POST or None, self.request.FILES or None, prefix='detalles'),
             }
 
+@method_decorator(login_required, name='dispatch')
 class OrdenesVentaUpdateView(OrdenesVentaInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -212,6 +266,41 @@ class OrdenesVentaUpdateView(OrdenesVentaInLine, UpdateView):
                     formset_form.cantidad = orden_produccion.orden_venta_detalle.cantidad_detalle
                     formset_form.estado = orden_produccion.get_estado_produccion_display()
 
+                    alertas = 0
+                    formset_form.alerta = 0
+                    # salud_humana = 0
+                    # eco_terrestre = 1
+                    # eco_aguadulce = 2
+                    # eco_marino = 03
+                    # escase_recursos = 4
+                    try:
+
+                        for i in range(5):
+                            x = i+1
+                            endpoint = Endpoint.objects.get(id=x)
+                            produ_calculo = ProduccionCalculosEndpoint.objects.get(orden_asociada=orden_produccion,midpoint_endpoint=endpoint)
+
+                            emision = produ_calculo.valor_real/orden_produccion.orden_venta_detalle.cantidad_detalle 
+                            print(f"Cuanto es produ_calculo.valor_real {produ_calculo.valor_real}") 
+                            print(f"Cuanto es orden {orden_produccion.orden_venta_detalle.cantidad_detalle }") 
+                            if emision > 1.1*produ_calculo.valor_pla:
+                                print(f"Cuanto es emision {emision}") 
+                                alertas = alertas + 1
+
+                    except ProduccionCalculosEndpoint.DoesNotExist:
+                        print("error individual")
+
+                    proporcion_alertas = alertas/5
+
+                    if proporcion_alertas < 0.10:
+                        formset_form.alerta  = 1
+
+                    elif proporcion_alertas < 0.41:
+                        formset_form.alerta  = 0
+                    else:
+                        formset_form.alerta  = -1
+
+
                 except OrdenProduccion.DoesNotExist:
                     formset_form.estado = "Sin Asignar"
                     print("error")
@@ -233,11 +322,80 @@ class OrdenesVentaUpdateView(OrdenesVentaInLine, UpdateView):
             form.fecha_envio = ordenEnvio.fecha_entrega
             form.direccion_envio = ordenEnvio.direccion_entrega
             form.envio = ordenEnvio.id
+            emisiones_entrega = emisionesValoresEntrega(ordenEnvio)
 
         except OrdenEntrega.DoesNotExist:
             form.envio = -1
+            emisiones_entrega = [0,0,0,0,0]
+
+        detalles = DetalleOrdenVenta.objects.filter(orden_venta_detalle=orden)
+
+        form.existe = True
+        alertas = [0,0,0,0,0]
+        form.alerta = [0,0,0,0,0]
+        # salud_humana = 0
+        # eco_terrestre = 1
+        # eco_aguadulce = 2
+        # eco_marino = 03
+        # escase_recursos = 4
+        emisiones = [0,0,0,0,0]
+
+
+        for detalle in detalles:
+            try:
+                try:
+                    ordenProduccion = OrdenProduccion.objects.get(orden_venta_detalle=detalle)
+
+                    for i in range(5):
+                        x = i+1
+                        endpoint = Endpoint.objects.get(id=x)
+                        produ_calculo = ProduccionCalculosEndpoint.objects.get(orden_asociada=ordenProduccion,midpoint_endpoint=endpoint)
+                        emisiones[i] = emisiones[i] + produ_calculo.valor_real
+                        emision = produ_calculo.valor_real/detalle.cantidad_detalle    
+                        if emision > 1.1*produ_calculo.valor_pla:
+                            alertas[i] = alertas[i] + 1
+
+                except OrdenProduccion.DoesNotExist:
+                    print("no se encontro valores")
+
+            except ProduccionCalculosEndpoint.DoesNotExist:
+                form.existe = False 
+        
+        salud_humana = emisiones[0] + emisiones_entrega[0]
+        eco_terrestre = emisiones[1] + emisiones_entrega[1]
+        eco_aguadulce = emisiones[2] + emisiones_entrega[2]
+        eco_marino = emisiones[3] + emisiones_entrega[3]
+        escase_recursos = emisiones[4] + emisiones_entrega[4]
+
+        form.salud_humana = "{0:.3E}".format(salud_humana)
+        form.eco_terrestre = "{0:.3E}".format(eco_terrestre)
+        form.eco_aguadulce = "{0:.3E}".format(eco_aguadulce)
+        form.eco_marino = "{0:.3E}".format(eco_marino)
+        form.escase_recursos = "{0:.3E}".format(escase_recursos)
+
+        total = detalles.count()
+        for i in range(5):
+            proporcion_alertas = alertas[i]/total
+
+            if proporcion_alertas < 0.15:
+                form.alerta[i] = 1
+
+            elif proporcion_alertas < 0.4:
+                form.alerta[i] = 0
+            else:
+                form.alerta[i] = -1
 
         return form
+
+def emisionesValoresEntrega(orden):
+    emisiones = []
+    for i in range(5):
+        x = i+1
+        endpoint = Endpoint.objects.get(id=x)
+        produ_calculo = EnvioCalculosEndpoint.objects.get(envio_asociada=orden,midpoint_endpoint=endpoint)
+        emisiones.append(produ_calculo.valor_real)
+
+    return emisiones
 
 def terminar_ProduccionVenta(request,pk):
     try:
@@ -283,7 +441,7 @@ def delete_DetalleOrdenVenta(request, pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Orden de Detalle eliminado.'
             )
     return redirect('produccion_app:modificar_orden_venta', pk=variant.orden_venta_detalle.id)
 
@@ -412,8 +570,9 @@ def calcularemisionesTierra(id_cadena,midpointTierra,cantidad):
         tipo_midpoint = "TI"
         try:
             #categoria = Categoria_emision.objects.get(nom_categoria=midpointTierra.nom_tipouso)
+            print(f"Mi xxx es {midpointTierra.nom_tipouso}")
             sustancia = Sustancia_emision.objects.get(componente_emision=midpointTierra.nom_tipouso)
-            print(f"Mi sustancia es {sustancia.id}")
+            
             limpiarEmisionesTierra(orden)
             midpoints = Sustancia_Midpoint_emision.objects.filter(sustancia_emision=sustancia)
             for midpoint in midpoints:
@@ -484,15 +643,24 @@ def calcularEmisionesTramosSuministro(suministroTramos):
 def calcularemisionEquipos(actividad_orden):
     print("entro a calcularemisionEquipos")
     uso_horas = actividad_orden.tiempo_equipo_asociado
-    potencia = actividad_orden.equipo_asociado.potencia_equipo
-    kilo_vatios_hora = (potencia/1000.0)*uso_horas
 
-    fuente_energia = actividad_orden.produccion_asociada.fuente_energia
-    co2_equipo_point = fuente_energia.co2_energia * kilo_vatios_hora
-    nox_equipo_point = fuente_energia.nox_energia * kilo_vatios_hora
-    so2_equipo_point = fuente_energia.so2_energia  * kilo_vatios_hora
-    pm_equipo_point = fuente_energia.pm_energia * kilo_vatios_hora
-    co60_equipo_point = fuente_energia.co60_energia * kilo_vatios_hora
+
+    if actividad_orden.equipo_asociado is not None:
+        potencia = actividad_orden.equipo_asociado.potencia_equipo
+        kilo_vatios_hora = (potencia/1000.0)*uso_horas
+
+        fuente_energia = actividad_orden.produccion_asociada.fuente_energia
+        co2_equipo_point = fuente_energia.co2_energia * kilo_vatios_hora
+        nox_equipo_point = fuente_energia.nox_energia * kilo_vatios_hora
+        so2_equipo_point = fuente_energia.so2_energia  * kilo_vatios_hora
+        pm_equipo_point = fuente_energia.pm_energia * kilo_vatios_hora
+        co60_equipo_point = fuente_energia.co60_energia * kilo_vatios_hora
+    else:
+        co2_equipo_point = 0.00
+        nox_equipo_point = 0.00
+        so2_equipo_point = 0.00
+        pm_equipo_point = 0.00
+        co60_equipo_point = 0.00
 
     puntos_a_revisar = [(settings.CODIGO_C02,co2_equipo_point),(settings.CODIGO_NOX,nox_equipo_point),(settings.CODIGO_SO2,so2_equipo_point),(settings.CODIGO_PM,pm_equipo_point),(settings.CODIGO_CO60,co60_equipo_point)]
 
@@ -681,10 +849,58 @@ def cancelar_ordenProduccion(request,pk):
             )
     return redirect('produccion_app:ordenes_produccion')
 
+@method_decorator(login_required, name='dispatch')
 class OrdenesProduccionListView(ListView):
     context_object_name = 'Ordenproduccion_list'
     model = OrdenProduccion
     template_name = 'produccion_app/ordenes_produccion.html'
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Calcula el campo personalizado para cada objeto en el queryset
+        queryset = self.get_queryset()
+        for objeto in queryset:
+
+            alertas = 0
+            objeto.alerta = 0
+
+            try:
+                try:
+
+                    for i in range(5):
+                        x = i+1
+                        endpoint = Endpoint.objects.get(id=x)
+                        produ_calculo = ProduccionCalculosEndpoint.objects.get(orden_asociada=objeto,midpoint_endpoint=endpoint)
+
+                        emision = produ_calculo.valor_real/objeto.orden_venta_detalle.cantidad_detalle 
+                        print(f"Cuanto es produ_calculo.valor_real {produ_calculo.valor_real}") 
+                        print(f"Cuanto es orden {objeto.orden_venta_detalle.cantidad_detalle }") 
+                        if emision > 1.1*produ_calculo.valor_pla:
+                            print(f"Cuanto es emision {emision}") 
+                            alertas = alertas + 1
+
+                except OrdenProduccion.DoesNotExist:
+                    print("no se encontro valores")
+
+            except ProduccionCalculosEndpoint.DoesNotExist:
+                    print("no se encontro valores")      
+
+            proporcion_alertas = alertas/5
+
+            if proporcion_alertas < 0.10:
+                objeto.alerta  = 1
+
+            elif proporcion_alertas < 0.41:
+                objeto.alerta  = 0
+            else:
+                objeto.alerta  = -1
+
+        # Agrega el queryset modificado al contexto
+        context['Ordenproduccion_list'] = queryset
+
+        return context
 
 class OrdendeProduccionInLine():
     form_class = OrdenProduccionForm
@@ -753,7 +969,8 @@ class OrdendeProduccionInLine():
             actividad.produccion_asociada = self.object
             actividad.save()
             calcularemisionEquipos(actividad)
-            
+
+@method_decorator(login_required, name='dispatch')     
 class OrdendeProduccionUpdateView(OrdendeProduccionInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -824,42 +1041,50 @@ class OrdendeProduccionUpdateView(OrdendeProduccionInLine, UpdateView):
             form.tierra = orden.tierra_ocupada.nom_tipouso
             form.m2 = orden.tierra_m2
 
+            #alertas = [0,0,0,0,0]
+            form.alerta = [0,0,0,0,0]
+            emisiones = [0,0,0,0,0]
+            # salud_humana = 0
+            # eco_terrestre = 1
+            # eco_aguadulce = 2
+            # eco_marino = 03
+            # escase_recursos = 4
+
             if form.estado == "Completado" or form.estado == "Cancelado":
                 form.fields['fuente_energia'].widget.attrs['disabled'] = 'disabled'
                 form.fields['tierra_ocupada'].widget.attrs['disabled'] = 'disabled'
                 form.fields['tierra_m2'].widget.attrs['disabled'] = 'disabled'
 
             try:
-                endpoint = Endpoint.objects.get(id=1)
-                salud_humana = ProduccionCalculosEndpoint.objects.get(orden_asociada=orden,midpoint_endpoint=endpoint)
-                endpoint = Endpoint.objects.get(id=2)
-                eco_terrestre = ProduccionCalculosEndpoint.objects.get(orden_asociada=orden,midpoint_endpoint=endpoint)
-                endpoint = Endpoint.objects.get(id=3)
-                eco_aguadulce = ProduccionCalculosEndpoint.objects.get(orden_asociada=orden,midpoint_endpoint=endpoint)
-                endpoint = Endpoint.objects.get(id=4)
-                eco_marino = ProduccionCalculosEndpoint.objects.get(orden_asociada=orden,midpoint_endpoint=endpoint)
-                endpoint = Endpoint.objects.get(id=5)
-                escase_recursos = ProduccionCalculosEndpoint.objects.get(orden_asociada=orden,midpoint_endpoint=endpoint)
+                
+                for i in range(5):
+                        x = i+1
+                        endpoint = Endpoint.objects.get(id=x)
+                        produ_calculo = ProduccionCalculosEndpoint.objects.get(orden_asociada=orden,midpoint_endpoint=endpoint)
+                        emisiones[i] = produ_calculo.valor_real
+                        emision = produ_calculo.valor_real/orden.orden_venta_detalle.cantidad_detalle 
+                        print(f"produ_calculo.valor_real {produ_calculo.valor_real}")
+                        print(f"orden.orden_venta_detalle.cantidad_detalle  {orden.orden_venta_detalle.cantidad_detalle }")
+                        print(f"planificado {produ_calculo.valor_pla}")
+                        if emision <= 1.1*produ_calculo.valor_pla:
+                            print(f"emision G {emision}")
+                            form.alerta[i] =  1
+                        elif emision < 1.4*produ_calculo.valor_pla:
+                            form.alerta[i] =  0
+                            print(f"emision Y {emision}")
+                        else:
+                            form.alerta[i] =  -1
+                            print(f"emision R {emision}")
+    
 
-                form.salud_humana = "{0:.3E}".format(salud_humana.valor_real)
-                form.eco_terrestre = "{0:.3E}".format(eco_terrestre.valor_real)
-                form.eco_aguadulce = "{0:.3E}".format(eco_aguadulce.valor_real)
-                form.eco_marino = "{0:.3E}".format(eco_marino.valor_real)
-                form.escase_recursos = "{0:.3E}".format(escase_recursos.valor_real)
+                form.salud_humana = "{0:.3E}".format(emisiones[0])
+                form.eco_terrestre = "{0:.3E}".format(emisiones[1])
+                form.eco_aguadulce = "{0:.3E}".format(emisiones[2])
+                form.eco_marino = "{0:.3E}".format(emisiones[3])
+                form.escase_recursos = "{0:.3E}".format(emisiones[4])
 
             except ProduccionCalculosEndpoint.DoesNotExist:
                 form.existe = False
-
-
-    #         # for form_in_formset in self.get_named_formsets()['variants'].forms:
-    #         #     suministro_id = form_in_formset.fields['suministro_asociado'].initial
-
-    #         #     print(f"Valor: {suministro_id}")
-
-    #         #     suministro = Suministro.objects.get(id=suministro_id)
-                
-    #         #     proveedor_id = Proveedor.objects.get(id=suministro.prov_suministro)
-    #         #     form_in_formset.fields['proveedor_suministro'].initial = proveedor_id
 
         except OrdenProduccion.DoesNotExist:
             messages.error(request, 'No se encontro la orden de producción. Contacta al Soporte')
@@ -880,7 +1105,7 @@ def actualizar_produccion(request,pk):
     ordenProduccion.estado_produccion = "PR"
     ordenProduccion.save()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Orden de Producción actualizada'
             )
     return redirect('produccion_app:modificar_produccion', pk=ordenProduccion.id)
 
@@ -1066,6 +1291,7 @@ class OrdenSuministroInLine():
             tramo.save()
             calcularEmisionesTramosSuministro(tramo)
 
+@method_decorator(login_required, name='dispatch')
 class OrdenSuministroUpdateView(OrdenSuministroInLine,UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -1153,7 +1379,7 @@ def delete_SuministroEmision(request, pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Emision eliminada.'
             )
     return redirect('produccion_app:modificar_suministro', pk=variant.ordensuministro_asociado.id)
 
@@ -1169,7 +1395,7 @@ def delete_SuministroViaje(request,pk):
 
     variant.delete()
     messages.success(
-            request, 'Variant deleted successfully'
+            request, 'Tramo de Viaje eliminado'
             )
     return redirect('produccion_app:modificar_suministro', pk=variant.ordensuministro_asociado.id)
 
@@ -1230,6 +1456,7 @@ class ActividadesProduccionInLine():
             emision.save()
             calcularemisionesActividades(emision)
 
+@method_decorator(login_required, name='dispatch')
 class ActividadesProduccionInLineUpdateView(ActividadesProduccionInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -1280,7 +1507,13 @@ class ActividadesProduccionInLineUpdateView(ActividadesProduccionInLine, UpdateV
             form.productonombre = actividad.produccion_asociada.orden_venta_detalle.producto_detalle.nom_producto
             form.estado = actividad.get_estado_actividad_display()
             form.nombre = actividad.nom_actividad
-            form.equipo = actividad.equipo_asociado.nom_equipo
+            
+            if actividad.equipo_asociado is None:
+                form.equipo = ""
+            else:
+                form.equipo = actividad.equipo_asociado.nom_equipo
+
+
             form.tiempo = actividad.tiempo_equipo_asociado
             form.orden = actividad.produccion_asociada.id
             #form.actividad = actividad_plancadena.nom_actividad
@@ -1411,16 +1644,24 @@ def calcularEmisionesTramosEntrega(suministroTramos):
 def calcularemisionEquiposEntrega(actividad_orden):
     print("entro a calcularemisionEquipos")
     uso_horas = actividad_orden.tiempo_equipo_asociado
-    potencia = actividad_orden.equipo_asociado.potencia_equipo
-    kilo_vatios_hora = (potencia/1000.0)*uso_horas
 
+    if actividad_orden.equipo_asociado is not None:
+        potencia = actividad_orden.equipo_asociado.potencia_equipo
+        kilo_vatios_hora = (potencia/1000.0)*uso_horas
 
-    fuente_energia = actividad_orden.entrega_asociada.fuente_energia
-    co2_equipo_point = fuente_energia.co2_energia * kilo_vatios_hora
-    nox_equipo_point = fuente_energia.nox_energia * kilo_vatios_hora
-    so2_equipo_point = fuente_energia.so2_energia  * kilo_vatios_hora
-    pm_equipo_point = fuente_energia.pm_energia * kilo_vatios_hora
-    co60_equipo_point = fuente_energia.co60_energia * kilo_vatios_hora
+        fuente_energia = actividad_orden.entrega_asociada.fuente_energia
+        co2_equipo_point = fuente_energia.co2_energia * kilo_vatios_hora
+        nox_equipo_point = fuente_energia.nox_energia * kilo_vatios_hora
+        so2_equipo_point = fuente_energia.so2_energia  * kilo_vatios_hora
+        pm_equipo_point = fuente_energia.pm_energia * kilo_vatios_hora
+        co60_equipo_point = fuente_energia.co60_energia * kilo_vatios_hora
+
+    else:
+        co2_equipo_point = 0.00
+        nox_equipo_point = 0.00
+        so2_equipo_point = 0.00
+        pm_equipo_point = 0.00
+        co60_equipo_point = 0.00
 
 
 
@@ -1591,7 +1832,7 @@ def OrdenEntregaCreate(request,pk):
 
     return redirect('produccion_app:editar_orden_entrega',pk=ordenEntrega.id)
 
-
+@method_decorator(login_required, name='dispatch')
 class OrdenEntregaUpdateView(OrdenEntregaInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -1660,26 +1901,27 @@ class OrdenEntregaUpdateView(OrdenEntregaInLine, UpdateView):
         except:
             print("error en actividad")
 
-    #         try:
-    #             endpoint = Endpoint.objects.get(id=1)
-    #             salud_humana = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
-    #             endpoint = Endpoint.objects.get(id=2)
-    #             eco_terrestre = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
-    #             endpoint = Endpoint.objects.get(id=3)
-    #             eco_aguadulce = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
-    #             endpoint = Endpoint.objects.get(id=4)
-    #             eco_marino = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
-    #             endpoint = Endpoint.objects.get(id=5)
-    #             escase_recursos = CadenaCalculosEndpoint.objects.get(cadena_asociada=cadena_name,midpoint_endpoint=endpoint)
+        form.existe = True
+        try:
+            endpoint = Endpoint.objects.get(id=1)
+            salud_humana = EnvioCalculosEndpoint.objects.get(envio_asociada=orden,midpoint_endpoint=endpoint)
+            endpoint = Endpoint.objects.get(id=2)
+            eco_terrestre = EnvioCalculosEndpoint.objects.get(envio_asociada=orden,midpoint_endpoint=endpoint)
+            endpoint = Endpoint.objects.get(id=3)
+            eco_aguadulce = EnvioCalculosEndpoint.objects.get(envio_asociada=orden,midpoint_endpoint=endpoint)
+            endpoint = Endpoint.objects.get(id=4)
+            eco_marino = EnvioCalculosEndpoint.objects.get(envio_asociada=orden,midpoint_endpoint=endpoint)
+            endpoint = Endpoint.objects.get(id=5)
+            escase_recursos = EnvioCalculosEndpoint.objects.get(envio_asociada=orden,midpoint_endpoint=endpoint)
 
-    #             form.salud_humana = "{0:.3E}".format(salud_humana.valor)
-    #             form.eco_terrestre = "{0:.3E}".format(eco_terrestre.valor)
-    #             form.eco_aguadulce = "{0:.3E}".format(eco_aguadulce.valor)
-    #             form.eco_marino = "{0:.3E}".format(eco_marino.valor)
-    #             form.escase_recursos = "{0:.3E}".format(escase_recursos.valor)
+            form.salud_humana = "{0:.3E}".format(salud_humana.valor_real)
+            form.eco_terrestre = "{0:.3E}".format(eco_terrestre.valor_real)
+            form.eco_aguadulce = "{0:.3E}".format(eco_aguadulce.valor_real)
+            form.eco_marino = "{0:.3E}".format(eco_marino.valor_real)
+            form.escase_recursos = "{0:.3E}".format(escase_recursos.valor_real)
 
-        # except CadenaCalculosEndpoint.DoesNotExist:
-        #     form.existe = False
+        except EnvioCalculosEndpoint.DoesNotExist:
+            form.existe = False
 
 
     #         # for form_in_formset in self.get_named_formsets()['variants'].forms:
@@ -1750,6 +1992,7 @@ class Actividad_EnvioInLine():
             emision.save()
             calcularemisionesActividadesEntrega(emision)
 
+@method_decorator(login_required, name='dispatch')
 class Actividad_EnvioInLineUpdateView(Actividad_EnvioInLine, UpdateView):
 
     def get_context_data(self, **kwargs):
@@ -1800,7 +2043,12 @@ class Actividad_EnvioInLineUpdateView(Actividad_EnvioInLine, UpdateView):
             #form.productonombre = actividad.produccion_asociada.orden_venta_detalle.producto_detalle.nom_producto
             form.estado = actividad.get_estado_actividad_display()
             form.nombre = actividad.nom_actividad
-            form.equipo = actividad.equipo_asociado.nom_equipo
+
+            if actividad.equipo_asociado is None:
+                form.equipo = ""
+            else:
+                form.equipo = actividad.equipo_asociado.nom_equipo
+
             form.tiempo = actividad.tiempo_equipo_asociado
             form.orden = actividad.entrega_asociada.id
             form.ordenventa = actividad.entrega_asociada.orden_venta_entrega.cod_venta
@@ -1971,6 +2219,7 @@ def delete_EntregaViaje(request,pk):
             )
     return redirect('produccion_app:editar_orden_entrega', pk=variant.orden_envio_asociada.id)
 
+@method_decorator(login_required, name='dispatch')
 class OrdenEntregaListView(ListView):
     context_object_name = 'Ordenentregas_list'
     model = OrdenEntrega

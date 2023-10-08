@@ -15,6 +15,78 @@
             {% endif %}
           <p class="col-lg-12">Ingresa los datos de la Orden de Venta</p>
           <form enctype="multipart/form-data" class="container" method="post" id="product_form">
+                             {% if form.existe %}
+ 
+            <div class="table-responsive card mt-4">
+                <div class="card-header card-header-secondary">
+                    <h4 class="card-title">Evaluación Impacto Ambiental</h4>
+                </div>
+                <div class="card-body colorcard">
+                    <div class="container-estadistica">
+                        <div class="kpi">
+                            <div class="kpi-label">Salud Humana</div>
+                            {% if form.alerta.0 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.0 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{form.salud_humana}}</div>
+                            <div class="kpi-label">Perdida de años de vida-discapacidad</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Terrestres</div>
+                             {% if form.alerta.1 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.1 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{form.eco_terrestre}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Agua Dulce</div>
+                            {% if form.alerta.2 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.2 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{form.eco_aguadulce}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Eco. Marino</div>
+                            {% if form.alerta.3 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.3 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            {{form.eco_marino}}</div>
+                            <div class="kpi-label">Perdida de especie x año</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">Escases de Recursos</div>
+                            {% if form.alerta.4 < 0 %}
+                            <div class="kpi-number" style="color: red;">
+                            {% elif form.alerta.4 < 1 %}
+                            <div class="kpi-number" style="color: #ff870b;">
+                            {% else %}
+                            <div class="kpi-number" style="color: green;">
+                            {% endif %}
+                            USD {{form.escase_recursos}}</div>
+                            <div class="kpi-label">Coste Excedente</div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            {% endif %}  
           <div class="form-group">
              {% csrf_token %}
             {% for message in messages %}
@@ -104,10 +176,11 @@
                 </div>
                 <table class="table card-header">
                     <thead class="text-secondary">
-                        <th style="width:35%;">Producto <span style="color: red;" class="required">*</span></th>
+                        <th style="width:8%;">Desvio</th>
+                        <th style="width:30%;">Producto <span style="color: red;" class="required">*</span></th>
                         <th style="width:20%;">Cantidad <span style="color: red;" class="required">*</span></th>
                         <th style="width:15%;">Estado Producción<span style="color: red;" class="required">*</span></th>
-                        <th style="width:25%;">Acción sobre Producción</th>
+                        <th style="width:22%;">Acción sobre Producción</th>
                     </thead>
                     <tbody id="item-detalles">  <!-- id="item-inlineformsetname" -->
                         <!-- formset non forms errors -->
@@ -119,6 +192,13 @@
                             <tr id="detalles-{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
                                 {{ formss.id }}
                                 {% if formss.creado %}
+                                    {% if formss.alerta < 0 %}
+                                    <td><a style="color:red;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path></svg></a></td>
+                                    {% elif formss.alerta < 1 %}
+                                    <td><a style="color:#ff870b;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path></svg></td></a>
+                                    {% else %}
+                                    <td><a style="color:green;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path></svg></a></td>
+                                    {% endif %}
                                 <td>
                                     <input type="text" value="{{formss.producto}}" class="form-control" disabled="True" maxlength="50">
                                      <a style="display:none;">{{ formss.producto_detalle }}</a>
@@ -129,6 +209,8 @@
                                 </td>
                                 {% else %}
                                     {% if form.estado == "En Producción" or form.estado == "Registrado" %}
+                                    <td>
+                                    </td>
                                     <td>
                                         {{ formss.producto_detalle }}
                                     </td>

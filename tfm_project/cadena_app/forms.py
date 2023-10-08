@@ -14,7 +14,7 @@ class CadenaNuevaForm(forms.ModelForm):
             #'prod_asociado':forms.Select(attrs={'class':'form-control'}),
             'fuente_energia':forms.Select(attrs={'class':'form-control'}),
             'tierra_ocupada':forms.Select(attrs={'class':'form-control'}),
-            'tierra_m2': forms.NumberInput(attrs={'class':'form-control'}),
+            'tierra_m2': forms.NumberInput(attrs={'class':'form-control','min':0}), 
         };
 
         labels = {
@@ -39,7 +39,7 @@ class SuministroPlanCadenaForm(forms.ModelForm):
             'suministro_asociado':forms.Select(attrs={'class':'suministro-select form-control'}),
             'cadena_asociada':forms.Select(attrs={'class':'form-control'}),
             'unidad_suministro': forms.Select(attrs={'class':'form-control'}),
-            'cantidad_suministro': forms.NumberInput(attrs={'class':'form-control'})
+            'cantidad_suministro': forms.NumberInput(attrs={'class':'form-control','min':0}), 
         };
 
     
@@ -67,7 +67,7 @@ class SuministroEmisionPlanCadenaForm(forms.ModelForm):
             'categoria_asociada':forms.Select(attrs={'class':'midpoint-select'}),
             'sumcadena_asociado':forms.Select(attrs={'class':'form-control'}),
             'sustancia_asociada':forms.Select(attrs={'class':'sustancia-select form-control'}),
-            'cantidad_sustancia': forms.NumberInput(attrs={'class':'form-control'})
+            'cantidad_sustancia': forms.NumberInput(attrs={'class':'form-control','min':0}), 
         }
 
         field_order = ['tipo_emision','categoria_asociada','sustancia_asociada','cantidad_sustancia','sumcadena_asociado']
@@ -91,7 +91,7 @@ class SuministroViajesPlanCadenaForm(forms.ModelForm):
             'tipo_tramo':forms.Select(attrs={'class':'form-control'}),
             'energia_tramo':forms.Select(attrs={'class':'form-control'}),
             'descripcion_tramo':forms.TextInput(attrs={'class':'form-control'}),
-            'km_tramo':forms.NumberInput(attrs={'class':'form-control'})
+            'km_tramo':forms.NumberInput(attrs={'class':'form-control','min':0}), 
         }
 
 SuministroViajesPlanCadenaForm = inlineformset_factory(Suministro_PlanCadena, SuministroTramos_PlanCadena,form=SuministroViajesPlanCadenaForm,extra=1,can_delete=False,can_delete_extra=True)
@@ -113,7 +113,7 @@ class Tramos_PlanCadenaForm(forms.ModelForm):
             'tipo_tramoexterno':forms.Select(attrs={'class':'form-control'}),
             'energia_tramoexterno':forms.Select(attrs={'class':'form-control'}),
             'descripcion_tramoexterno':forms.TextInput(attrs={'class':'form-control'}),
-            'km_tramoexterno':forms.NumberInput(attrs={'class':'form-control'})
+            'km_tramoexterno':forms.NumberInput(attrs={'class':'form-control','min':0}), 
         }
 
 SuministroTramosPlanFormSet = inlineformset_factory(CadenaSuministro, Tramos_PlanCadena,form=Tramos_PlanCadenaForm,extra=1,can_delete=False,can_delete_extra=True)
@@ -130,7 +130,7 @@ class Actividad_PlanCadenaForm(forms.ModelForm):
             'tipo_actividad':forms.Select(attrs={'class':'form-control'}),
             'nom_actividad':forms.TextInput(attrs={'class':'form-control'}),
             'equipo_asociado':forms.Select(attrs={'class':'form-control'}),
-            'tiempo_equipo_asociado':forms.NumberInput(attrs={'class':'form-control'})
+            'tiempo_equipo_asociado':forms.NumberInput(attrs={'class':'form-control','min':0}), 
         }
 
 ActividadPlanFormSet = inlineformset_factory(CadenaSuministro, Actividad_PlanCadena,form=Actividad_PlanCadenaForm,extra=1,can_delete=False,can_delete_extra=True)
@@ -149,7 +149,7 @@ class ActividadEmisionPlanCadenaForm(forms.ModelForm):
             'categoria_asociada':forms.Select(attrs={'class':'midpoint-select'}),
             'actividadplan_asociado':forms.Select(attrs={'class':'form-control'}),
             'sustancia_asociada':forms.Select(attrs={'class':'sustancia-select form-control'}),
-            'cantidad_sustancia': forms.NumberInput(attrs={'class':'form-control'})
+            'cantidad_sustancia': forms.NumberInput(attrs={'class':'form-control','min':0}), 
         }
 
         field_order = ['tipo_emision','categoria_asociada','actividadplan_asociado','cantidad_sustancia','sumcadena_asociado']
