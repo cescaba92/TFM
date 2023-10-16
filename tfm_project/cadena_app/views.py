@@ -47,7 +47,7 @@ def calcularEndpoints(cadena):
                 nuevo_valor = valor_anterior + valor_agregar
 
                 cadena_calculo.valor = nuevo_valor
-                print(f"valor es: {nuevo_valor}")
+                #print(f"valor es: {nuevo_valor}")
                 cadena_calculo.save()
 
     except MidpointEmision_PlanCadena.DoesNotExist:
@@ -679,6 +679,7 @@ class Actividades_PlanCadenaUpdateView(Actividades_PlanCadenaInLine, UpdateView)
             suministro_plancadena_id = self.kwargs.get('pk')
             actividad_plancadena = Actividad_PlanCadena.objects.get(id=suministro_plancadena_id)
             form.productonombre = actividad_plancadena.cadena_asociada.prod_asociado
+            form.indice = actividad_plancadena.cadena_asociada.id
             #form.actividad = actividad_plancadena.nom_actividad
 
         except Actividad_PlanCadena.DoesNotExist:
@@ -755,7 +756,7 @@ class Suministro_PlanCadenaInLine():
             variant.sumcadena_asociado = self.object
             variant.save()
             calcularemisionesSuministro(variant)
-            #print(f"Mi suministroEmision_asociado es {variant}")
+            print(f"Mi suministroEmision_asociado es {variant}")
 
     def formset_tramos_valid(self,formset):
         print("Entro aqui - Tramos")

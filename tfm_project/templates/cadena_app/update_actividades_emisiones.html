@@ -55,8 +55,8 @@
         {% with named_formsets.emisiones as formset %}
         {{ formset.management_form }}
 
-        <script type="text/html"  id="variants-template"> 
-            <tr id="variants-__prefix__" data-row="__prefix__" dataclass= hide_all>
+        <script type="text/html"  id="emisiones-template"> 
+            <tr id="emisiones-__prefix__" data-row="__prefix__" dataclass= hide_all>
                 {% for fields in formset.empty_form.hidden_fields %}
                     {{ fields }}
                 {% endfor %}
@@ -86,17 +86,17 @@
                     <th style="width:20%;">Emision<span style="color: red;" class="required">*</span></th>
                     <th style="width:35%;">Categoría de Sustancia<span style="color: red;" class="required">*</span></th>
                     <th style="width:20%;">Sustancia <span style="color: red;" class="required">*</span></th>
-                    <th style="width:10%;">Cantidad<span style="color: red;" class="required">*</span></th>
+                    <th style="width:10%;">Cantidad Kg<span style="color: red;" class="required">*</span></th>
                     <th style="width:15%;">Accion</th>
                 </thead>
-                <tbody id="item-variants">  <!-- id="item-inlineformsetname" -->
+                <tbody id="item-emisiones">  <!-- id="item-inlineformsetname" -->
                     <!-- formset non forms errors -->
                     {% for error in formset.non_form_errors %}
                         <span style="color: red">{{ error }}</span>
                     {% endfor %}
                     {% for formss in formset %}
                         {{ formss.management_form }}
-                        <tr id="variants-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                        <tr id="emisiones-{{ forloop.counter0 }}" data-row="{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
                             {{ formss.id }}
                             <td>
                                 {{ formss.tipo_emision }}
@@ -142,12 +142,13 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <a href="#" id="add-variant-button" class="btn btn-secondary add-variants">Agregar</a> <!-- id="add-inlineformsetname-button" -->
+            <a href="#" id="add-emisiones-button" class="btn btn-secondary add-emisiones">Agregar</a> <!-- id="add-inlineformsetname-button" -->
         </div>
       </div>
        {% endwith %}
        <br>
       <button type="submit" class="btn btn-primary">Guardar</button>
+      <a href="{% url 'cadena_app:update_cadena1' pk=form.indice %}"><button type="button" class="btn btn-secondary">Cerrar</button></a>
     </form>
 
   </div>
@@ -161,15 +162,15 @@
 
   $(document).ready(function() {
     // when user clicks add more btn of variants
-      $('.add-variants').click(function(ev) {
+      $('.add-emisiones').click(function(ev) {
           ev.preventDefault();
-          var count = $('#item-variants').children().length;
-          var tmplMarkup = $('#variants-template').html();
+          var count = $('#item-emisiones').children().length;
+          var tmplMarkup = $('#emisiones-template').html();
           var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
-          $('#item-variants').append(compiledTmpl);
+          $('#item-emisiones').append(compiledTmpl);
   
           // update form count
-          $('#id_variants-TOTAL_FORMS').attr('value', count+1);
+          $('#id_emisiones-TOTAL_FORMS').attr('value', count+1);
       });
   });
 </script>

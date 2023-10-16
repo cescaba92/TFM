@@ -57,7 +57,7 @@ class OrdenEntrega(models.Model):
     direccion_entrega = models.CharField(max_length=264,null=True)
     fecha_entrega = models.DateField(default=datetime.date.today,null=True)
     contacto_entrega = models.CharField(max_length=264,null=True)
-    observaciones_entrega = models.CharField(max_length=264,null=True)
+    observaciones_entrega = models.CharField(max_length=264,null=True,blank=True)
     fuente_energia = models.ForeignKey(FuenteEnergia,on_delete=models.CASCADE,null=True)
     estado_entrega  = models.CharField(
         max_length=2,
